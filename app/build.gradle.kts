@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "fr.uparis.diamantkennel.memorisationapplication"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "fr.uparis.diamantkennel.memorisationapplication"
