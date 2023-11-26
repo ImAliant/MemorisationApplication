@@ -5,7 +5,7 @@
 - Jeu de question
   - [ ] Ajouter / Importer
     - Fichier local
-    - Lien http
+    - Lien HTTP
   - [ ] Supprimer
   - Modifier
     - [ ] Créer des questions
@@ -54,7 +54,7 @@
 
 - Architecture
 - Modularité
-- Clareté du code
+- Clarté du code
 - Bonne conception de la base de donnée
 - Ergonomie et facile d'utilisation
 - Graphisme _ne compte pas trop pour la note finale_
