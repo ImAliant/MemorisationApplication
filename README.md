@@ -58,3 +58,7 @@
 - Bonne conception de la base de donnée
 - Ergonomie et facile d'utilisation
 - Graphisme _ne compte pas trop pour la note finale_
+
+## Interface -- Draft
+
+![](ecrans_activity.png)
