@@ -113,7 +113,7 @@ fun DialogCreation(annuler: () -> Unit, confirmer: () -> Unit) {
         },
         confirmButton = {
             Button(
-                // on ajoute le sujet dans la liste des sujets
+                // TODO : on ajoute le sujet dans la liste des sujets
                 onClick = confirmer,
                 content = { Text("Ajouter") }
             )
@@ -154,7 +154,7 @@ fun DialogImportation(annuler: () -> Unit, confirmer: () -> Unit) {
                         ) {
                             RadioButton(
                                 selected = (text == selectedOption),
-                                onClick = null // pour l'instant
+                                onClick = null
                             )
                             Text(
                                 text = text,
@@ -174,6 +174,7 @@ fun DialogImportation(annuler: () -> Unit, confirmer: () -> Unit) {
         },
         confirmButton = {
             Button(
+                // TODO : on charge le jeu de question dans le sujet
                 onClick = confirmer,
                 content = { Text("Importer") }
             )
