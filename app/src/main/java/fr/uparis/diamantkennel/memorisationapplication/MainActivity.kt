@@ -10,15 +10,16 @@ import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -68,6 +69,8 @@ fun MainScreen() {
             modifier = Modifier.padding(padding)
         ) {
             composable(HOME) { HomeScreen(padding) }
+            composable(MODIFY_SET) { ModifySetScreen(padding, navController) }
+            composable(PLAY) { PlayScreen(padding, navController) }
         }
     }
 }
@@ -75,9 +78,9 @@ fun MainScreen() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar() =
-    TopAppBar(title = {
+    CenterAlignedTopAppBar(title = {
         Text(
-            "Projet",
+            text = LocalContext.current.getString(R.string.app_name),
             style = MaterialTheme.typography.displayMedium
         )
     })
@@ -88,7 +91,15 @@ fun BottomBar(navController: NavHostController) =
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
 
-        BottomNavigationItem(selected = currentRoute == HOME, onClick = {
-            navController.navigate(HOME) { launchSingleTop = true }
-        }, icon = { Icon(Icons.Default.Home, "Page principale") })
+        BottomNavigationItem(
+            selected = currentRoute == HOME,
+            onClick = {
+                navController.navigate(HOME) { launchSingleTop = true }
+            },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Home,
+                    contentDescription = LocalContext.current.getString(R.string.home_button)
+                )
+            })
     }

@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">MemorisationApplication</string>
+    <string name="app_name">Memorisation</string>
+    <string name="home_button">Page principale</string>
 </resources>
