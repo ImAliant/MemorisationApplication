@@ -5,4 +5,6 @@
     <string name="main_button_modify">Modifier</string>
     <string name="main_button_import">Importer</string>
     <string name="main_button_start">Lancer</string>
+    <string name="error_bad_entry">Erreur : entrée invalide</string>
+    <string name="error_duplicate">Erreur : doublon</string>
 </resources>

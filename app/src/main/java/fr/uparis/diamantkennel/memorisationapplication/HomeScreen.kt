@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.uparis.diamantkennel.memorisationapplication.data.SetOfQuestions
 import fr.uparis.diamantkennel.memorisationapplication.data.SetQuestions
+import fr.uparis.diamantkennel.memorisationapplication.ui.ErrorsAjout
 import fr.uparis.diamantkennel.memorisationapplication.ui.HomeViewModel
 
 @Composable
@@ -45,20 +46,33 @@ fun HomeScreen(padding: PaddingValues, model: HomeViewModel = viewModel()) {
     val setOfQuestions by model.setFlow.collectAsState(listOf())
     val currentSelection by model.selected
 
-    var wantToCreate by remember { mutableStateOf(false) }
-    var wantToImport by remember { mutableStateOf(false) }
+    val wantToCreate by model.wantToCreate
+    val wantToImport by model.wantToImport
+
+    val errorEntry by model.error
 
     if (wantToCreate) {
-        DialogCreation(
-            annuler = {wantToCreate = false},
-            confirmer = {wantToCreate = false}
+        CreationDialog(
+            annuler = {model.setCreation(false)},
+            confirmer = {model.setCreation(false)},
+            model = model
+        )
+    }
+
+    if (errorEntry != null) {
+        ErrorDialog(
+            when (errorEntry!!) {
+                ErrorsAjout.BAD_ENTRY -> context.getString(R.string.error_bad_entry)
+                ErrorsAjout.DUPLICATE -> context.getString(R.string.error_duplicate)
+            }, model::cleanErrors
         )
     }
 
     if (wantToImport) {
-        DialogImportation(
-            annuler = {wantToImport = false},
-            confirmer = {wantToImport = false}
+        ImportDialog(
+            annuler = {model.setImportation(false)},
+            confirmer = {model.setImportation(false)}/*,
+            model = model*/
         )
     }
 
@@ -71,7 +85,7 @@ fun HomeScreen(padding: PaddingValues, model: HomeViewModel = viewModel()) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
             Button(onClick = {
                 Toast.makeText(context, "Create", Toast.LENGTH_SHORT).show()
-                wantToCreate = true
+                model.setCreation(true)
             }) {
                 Text(text = context.getString(R.string.main_button_create))
             }
@@ -80,7 +94,7 @@ fun HomeScreen(padding: PaddingValues, model: HomeViewModel = viewModel()) {
             }
             Button(onClick = {
                 Toast.makeText(context, "Import", Toast.LENGTH_SHORT).show()
-                wantToImport = true
+                model.setImportation(true)
             }) {
                 Text(text = context.getString(R.string.main_button_import))
             }
@@ -98,17 +112,21 @@ fun HomeScreen(padding: PaddingValues, model: HomeViewModel = viewModel()) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DialogCreation(annuler: () -> Unit, confirmer: () -> Unit) {
-    var sujet by remember {mutableStateOf("")}
+fun CreationDialog(
+    annuler: () -> Unit,
+    confirmer: () -> Unit,
+    model : HomeViewModel = viewModel()
+) {
+    val sujet by model.sujet
 
     AlertDialog(
         onDismissRequest = annuler,
         title = { Text(text ="Créer un sujet") },
         text = {
             OutlinedTextField(
-                value = sujet,
-                onValueChange = { newTextValue -> sujet = newTextValue},
-                label = { Text("Nouveau sujet") }
+                sujet,
+                label = { Text("Nouveau sujet") },
+                onValueChange = { model.onSujetChange(it) }
             )
         },
         confirmButton = {
@@ -129,7 +147,7 @@ fun DialogCreation(annuler: () -> Unit, confirmer: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DialogImportation(annuler: () -> Unit, confirmer: () -> Unit) {
+fun ImportDialog(annuler: () -> Unit, confirmer: () -> Unit) {
     val radioOptions = listOf("Locale", "Internet")
     val (selectedOption, onOptionSelected) = remember {mutableStateOf(radioOptions[0])}
 
@@ -187,6 +205,14 @@ fun DialogImportation(annuler: () -> Unit, confirmer: () -> Unit) {
         }
     )
 }
+
+@Composable
+fun ErrorDialog(errMsg: String, dismiss: () -> Unit) =
+    AlertDialog(onDismissRequest = dismiss,
+        title = { Text(text = "Erreur")},
+        text = { Text(text = errMsg) },
+        confirmButton = {Button(onClick = dismiss) { Text(text = "Ok") }}
+    )
 
 @Composable
 fun ShowList(
