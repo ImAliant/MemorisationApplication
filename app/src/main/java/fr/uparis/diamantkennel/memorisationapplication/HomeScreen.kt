@@ -53,8 +53,7 @@ fun HomeScreen(padding: PaddingValues, model: HomeViewModel = viewModel()) {
 
     if (wantToCreate) {
         CreationDialog(
-            annuler = {model.setCreation(false)},
-            confirmer = {model.setCreation(false)},
+            annuler = {(model::setCreation)(false)},
             model = model
         )
     }
@@ -114,7 +113,6 @@ fun HomeScreen(padding: PaddingValues, model: HomeViewModel = viewModel()) {
 @Composable
 fun CreationDialog(
     annuler: () -> Unit,
-    confirmer: () -> Unit,
     model : HomeViewModel = viewModel()
 ) {
     val sujet by model.sujet
@@ -126,13 +124,12 @@ fun CreationDialog(
             OutlinedTextField(
                 sujet,
                 label = { Text("Nouveau sujet") },
-                onValueChange = { model.onSujetChange(it) }
+                onValueChange = model::onSujetChange
             )
         },
         confirmButton = {
             Button(
-                // TODO : on ajoute le sujet dans la liste des sujets
-                onClick = confirmer,
+                onClick = model::addSet,
                 content = { Text("Ajouter") }
             )
         },

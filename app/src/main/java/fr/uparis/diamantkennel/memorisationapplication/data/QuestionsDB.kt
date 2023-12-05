@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [SetQuestions::class, Question::class, Sets::class],
-    version = 1,
+    version = 2,
 )
 abstract class QuestionsDB : RoomDatabase() {
     abstract fun memoDao(): MemoDao

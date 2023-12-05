@@ -56,6 +56,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             sujet.value = ""
+            wantToCreate.value = false
         }
     }
 
