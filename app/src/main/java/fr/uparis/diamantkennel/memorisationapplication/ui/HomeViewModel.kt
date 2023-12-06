@@ -16,8 +16,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     var setFlow = dao.loadAllSets()
     var selected = mutableStateOf<SetQuestions?>(null)
 
-    var wantToCreate = mutableStateOf(false)
-    var wantToImport = mutableStateOf(false)
+    var creation = mutableStateOf(false)
+    var importation = mutableStateOf(false)
+    var deletionSelect = mutableStateOf(false)
+    var deletionDB = mutableStateOf(false)
 
     var sujet = mutableStateOf("")
     var error = mutableStateOf<ErrorsAjout?>(null)
@@ -28,15 +30,29 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun setCreation(t: Boolean) {
-        wantToCreate.value = t
+        creation.value = t
     }
 
     fun setImportation(t: Boolean) {
-        wantToImport.value = t
+        importation.value = t
     }
 
+    fun setDeletionSelect(t: Boolean) {
+        deletionSelect.value = t
+    }
+
+    fun setDeletionDB(t: Boolean) {
+        deletionDB.value = t
+    }
 
     /* Methods */
+    fun updateSelection(element: SetQuestions) {
+        if (selected.value == element) {
+            selected.value = null
+        } else {
+            selected.value = element
+        }
+    }
 
     fun addSet() {
         if (sujet.value.isBlank()) {
@@ -56,8 +72,26 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             sujet.value = ""
-            wantToCreate.value = false
+            creation.value = false
         }
+    }
+
+    fun deleteAll() {
+        deletionDB.value = false
+        viewModelScope.launch(Dispatchers.IO) {
+            dao.deleteTable()
+        }
+    }
+
+    fun deleteSelected() {
+        deletionSelect.value = false
+        if (selected.value == null) return
+
+        val selection = selected.value!!
+        viewModelScope.launch(Dispatchers.IO) {
+            dao.delete(selection)
+        }
+        selected.value = null
     }
 
     private fun reset() {

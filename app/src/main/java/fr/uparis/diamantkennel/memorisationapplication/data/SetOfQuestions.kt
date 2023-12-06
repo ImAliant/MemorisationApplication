@@ -10,4 +10,6 @@ data class SetOfQuestions(
         entityColumn = "setId"
     )
     val questions: List<Question>
-)
+) {
+    override fun toString() = set.name
+}

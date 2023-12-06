@@ -1,6 +1,7 @@
 package fr.uparis.diamantkennel.memorisationapplication.data
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
@@ -15,7 +16,9 @@ interface MemoDao {
     @Query("SELECT * FROM SetQuestions")
     fun loadAllSets(): Flow<List<SetOfQuestions>>
 
-    @Transaction
     @Query("DELETE FROM SetQuestions")
     fun deleteTable()
+
+    @Delete
+    fun delete(set: SetQuestions)
 }

@@ -15,7 +15,9 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -30,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,17 +49,12 @@ fun HomeScreen(padding: PaddingValues, model: HomeViewModel = viewModel()) {
     val setOfQuestions by model.setFlow.collectAsState(listOf())
     val currentSelection by model.selected
 
-    val wantToCreate by model.wantToCreate
-    val wantToImport by model.wantToImport
+    val creationRequest by model.creation
+    val importationRequest by model.importation
+    val deletionRequest by model.deletionSelect
+    val deletionDBRequest by model.deletionDB
 
     val errorEntry by model.error
-
-    if (wantToCreate) {
-        CreationDialog(
-            annuler = {(model::setCreation)(false)},
-            model = model
-        )
-    }
 
     if (errorEntry != null) {
         ErrorDialog(
@@ -67,7 +65,14 @@ fun HomeScreen(padding: PaddingValues, model: HomeViewModel = viewModel()) {
         )
     }
 
-    if (wantToImport) {
+    if (creationRequest) {
+        CreationDialog(
+            annuler = {(model::setCreation)(false)},
+            model = model
+        )
+    }
+
+    if (importationRequest) {
         ImportDialog(
             annuler = {model.setImportation(false)},
             confirmer = {model.setImportation(false)}/*,
@@ -75,15 +80,26 @@ fun HomeScreen(padding: PaddingValues, model: HomeViewModel = viewModel()) {
         )
     }
 
+    if (deletionRequest) {
+        DeletionDialog(
+            model::deleteSelected
+        )
+    }
+
+    if (deletionDBRequest) {
+        DeletionDBDialog(
+            model::deleteAll
+        )
+    }
+
     Column(
         modifier = Modifier.padding(padding),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ShowList(setOfQuestions, currentSelection)
+        ShowList(setOfQuestions, currentSelection, model::updateSelection)
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
             Button(onClick = {
-                Toast.makeText(context, "Create", Toast.LENGTH_SHORT).show()
                 model.setCreation(true)
             }) {
                 Text(text = context.getString(R.string.main_button_create))
@@ -96,6 +112,20 @@ fun HomeScreen(padding: PaddingValues, model: HomeViewModel = viewModel()) {
                 model.setImportation(true)
             }) {
                 Text(text = context.getString(R.string.main_button_import))
+            }
+        }
+        Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly){
+            Button(onClick = {
+                Toast.makeText(context, "DeleteBase", Toast.LENGTH_SHORT).show()
+                model.setDeletionDB(true)
+            }, colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.red))) {
+                Text(text = context.getString(R.string.main_button_deletebase))
+            }
+            Button(onClick = {
+                Toast.makeText(context, "Delete", Toast.LENGTH_SHORT).show()
+                model.setDeletionSelect(true)
+            }) {
+                Text(text = context.getString(R.string.main_button_delete))
             }
         }
 
@@ -212,27 +242,61 @@ fun ErrorDialog(errMsg: String, dismiss: () -> Unit) =
     )
 
 @Composable
+fun DeletionDialog(dismiss: () -> Unit) =
+    AlertDialog(onDismissRequest = dismiss,
+        title = { Text(text = "Supprimer un jeu de question")},
+        text = { Text(text = "Voulez-vous supprimer ce jeu de question ?") },
+        confirmButton = {Button(onClick = dismiss) { Text(text = "Ok") }}
+    )
+
+@Composable
+fun DeletionDBDialog(dismiss: () -> Unit) =
+    AlertDialog(onDismissRequest = dismiss,
+        title = { Text(text = "Supprimer la base de données")},
+        text = { Text(text = "Voulez-vous supprimer la base de données ?") },
+        confirmButton = {Button(onClick = dismiss) { Text(text = "Ok") }}
+    )
+
+@Composable
 fun ShowList(
     sets: List<SetOfQuestions>,
     currentSelection: SetQuestions?,
+    updateSelection: (SetQuestions) -> Unit
 ) {
     LazyColumn(
         Modifier
             .fillMaxHeight(0.7f)
     ) {
         itemsIndexed(sets) { index, item ->
-            ListItem(index, item, currentSelection)
+            ListItem(index, item, currentSelection, updateSelection)
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListItem(
     index: Int,
     set: SetOfQuestions,
     currentSelection: SetQuestions?,
-) = Card(Modifier.fillMaxSize()) {
-    Row {
-        Text(text = set.set.name, modifier = Modifier.padding(2.dp))
+    updateSelection: (SetQuestions) -> Unit,
+) {
+    val containerColor = when {
+        currentSelection == set.set -> colorResource(id = R.color.selected)
+        index % 2 == 0 -> colorResource(id = R.color.black)
+        else -> colorResource(id = R.color.purple_200)
+    }
+
+    Card(
+        onClick = { updateSelection(set.set) },
+        Modifier.fillMaxSize(),
+        colors = CardDefaults.cardColors(containerColor)
+    ) {
+        Row (
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ){
+            Text(set.toString(), modifier = Modifier.padding(2.dp))
+        }
     }
 }
