@@ -17,6 +17,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     var selected = mutableStateOf<SetQuestions?>(null)
 
     var creation = mutableStateOf(false)
+    var modification = mutableStateOf(false)
     var importation = mutableStateOf(false)
     var deletionSelect = mutableStateOf(false)
     var deletionDB = mutableStateOf(false)
@@ -27,22 +28,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     /* Listener */
     fun onSujetChange(s: String) {
         sujet.value = s
-    }
-
-    fun setCreation(t: Boolean) {
-        creation.value = t
-    }
-
-    fun setImportation(t: Boolean) {
-        importation.value = t
-    }
-
-    fun setDeletionSelect(t: Boolean) {
-        deletionSelect.value = t
-    }
-
-    fun setDeletionDB(t: Boolean) {
-        deletionDB.value = t
     }
 
     /* Methods */
@@ -71,8 +56,36 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 error.value = ErrorsAjout.DUPLICATE
             }
 
-            sujet.value = ""
-            creation.value = false
+            resetSujet()
+            cleanErrors()
+        }
+
+        dismissCreation()
+    }
+
+    fun doAction(action: ActionHome) {
+        when (action) {
+            ActionHome.CREATION -> {
+                creation.value = true
+            }
+            ActionHome.IMPORTATION -> {
+                importation.value = true
+            }
+            ActionHome.MODIFIER -> {
+                if (selected.value != null) {
+                    modification.value = true
+                }
+            }
+            ActionHome.DELETION_SELECT -> {
+                if (selected.value != null) {
+                    deletionSelect.value = true
+                }
+            }
+            ActionHome.DELETION_DB -> {
+                deletionDB.value = true
+            }
+
+            null -> return
         }
     }
 
@@ -94,9 +107,18 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         selected.value = null
     }
 
-    private fun reset() {
+    private fun resetSujet() {
         sujet.value = ""
-        error.value = null
+    }
+
+    fun dismissCreation() {
+        creation.value = false
+    }
+    fun dismissModification() {
+        modification.value = false
+    }
+    fun dismissImportation() {
+        importation.value = false
     }
 
     fun cleanErrors() {

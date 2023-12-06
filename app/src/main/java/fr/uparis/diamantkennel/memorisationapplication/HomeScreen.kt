@@ -1,10 +1,12 @@
 package fr.uparis.diamantkennel.memorisationapplication
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -39,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.uparis.diamantkennel.memorisationapplication.data.SetOfQuestions
 import fr.uparis.diamantkennel.memorisationapplication.data.SetQuestions
+import fr.uparis.diamantkennel.memorisationapplication.ui.ActionHome
 import fr.uparis.diamantkennel.memorisationapplication.ui.ErrorsAjout
 import fr.uparis.diamantkennel.memorisationapplication.ui.HomeViewModel
 
@@ -67,16 +70,15 @@ fun HomeScreen(padding: PaddingValues, model: HomeViewModel = viewModel()) {
 
     if (creationRequest) {
         CreationDialog(
-            annuler = {(model::setCreation)(false)},
+            dismiss = model::dismissCreation,
             model = model
         )
     }
 
     if (importationRequest) {
         ImportDialog(
-            annuler = {model.setImportation(false)},
-            confirmer = {model.setImportation(false)}/*,
-            model = model*/
+            dismiss = model::dismissImportation,
+            model = model
         )
     }
 
@@ -98,43 +100,67 @@ fun HomeScreen(padding: PaddingValues, model: HomeViewModel = viewModel()) {
     ) {
         ShowList(setOfQuestions, currentSelection, model::updateSelection)
 
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            Button(onClick = {
-                model.setCreation(true)
-            }) {
-                Text(text = context.getString(R.string.main_button_create))
-            }
-            Button(onClick = { Toast.makeText(context, "Modify", Toast.LENGTH_SHORT).show() }) {
-                Text(text = context.getString(R.string.main_button_modify))
-            }
-            Button(onClick = {
-                Toast.makeText(context, "Import", Toast.LENGTH_SHORT).show()
-                model.setImportation(true)
-            }) {
-                Text(text = context.getString(R.string.main_button_import))
-            }
+        ActionRow(context, model)
+
+        Button(
+            modifier = Modifier.fillMaxWidth(0.9f),
+            onClick = { Toast.makeText(context, "Start", Toast.LENGTH_SHORT).show() }) {
+            Text(text = context.getString(R.string.main_button_start), fontSize = 30.sp)
         }
-        Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly){
-            Button(onClick = {
-                Toast.makeText(context, "DeleteBase", Toast.LENGTH_SHORT).show()
-                model.setDeletionDB(true)
-            }, colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.red))) {
-                Text(text = context.getString(R.string.main_button_deletebase))
-            }
-            Button(onClick = {
-                Toast.makeText(context, "Delete", Toast.LENGTH_SHORT).show()
-                model.setDeletionSelect(true)
-            }) {
-                Text(text = context.getString(R.string.main_button_delete))
-            }
+        
+        Spacer(modifier = Modifier.padding(top = 50.dp))
+
+        DeleteRow(context, model)
+    }
+}
+
+@Composable
+private fun DeleteRow(
+    context: Context,
+    model: HomeViewModel
+) {
+    Row(modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,/*, horizontalArrangement = Arrangement.SpaceEvenly*/) {
+        Button(onClick = {
+            (model::doAction)(ActionHome.DELETION_DB)
+        }, colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.red))) {
+            Text(text = context.getString(R.string.main_button_deletebase))
         }
 
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            Button(
-                modifier = Modifier.fillMaxWidth(0.9f),
-                onClick = { Toast.makeText(context, "Start", Toast.LENGTH_SHORT).show() }) {
-                Text(text = context.getString(R.string.main_button_start), fontSize = 30.sp)
-            }
+        Spacer(modifier = Modifier.padding(2.dp))
+
+        Button(onClick = {
+            (model::doAction)(ActionHome.DELETION_SELECT)
+        }) {
+            Text(text = context.getString(R.string.main_button_delete))
+        }
+    }
+}
+
+@Composable
+private fun ActionRow(
+    context: Context,
+    model: HomeViewModel
+) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+        Button(onClick = {
+            (model::doAction)(ActionHome.CREATION)
+        }) {
+            Text(text = context.getString(R.string.main_button_create))
+        }
+
+        Spacer(modifier = Modifier.padding(2.dp))
+
+        Button(onClick = { Toast.makeText(context, "Modify", Toast.LENGTH_SHORT).show() }) {
+            Text(text = context.getString(R.string.main_button_modify))
+        }
+
+        Spacer(modifier = Modifier.padding(2.dp))
+
+        Button(onClick = {
+            (model::doAction)(ActionHome.IMPORTATION)
+        }) {
+            Text(text = context.getString(R.string.main_button_import))
         }
     }
 }
@@ -142,13 +168,13 @@ fun HomeScreen(padding: PaddingValues, model: HomeViewModel = viewModel()) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreationDialog(
-    annuler: () -> Unit,
+    dismiss: () -> Unit,
     model : HomeViewModel = viewModel()
 ) {
     val sujet by model.sujet
 
     AlertDialog(
-        onDismissRequest = annuler,
+        onDismissRequest = dismiss,
         title = { Text(text ="Créer un sujet") },
         text = {
             OutlinedTextField(
@@ -165,7 +191,7 @@ fun CreationDialog(
         },
         dismissButton = {
             Button(
-                onClick = annuler,
+                onClick = dismiss,
                 content = { Text("Annuler") }
             )
         }
@@ -174,14 +200,17 @@ fun CreationDialog(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ImportDialog(annuler: () -> Unit, confirmer: () -> Unit) {
+fun ImportDialog(
+    dismiss: () -> Unit,
+    model: HomeViewModel
+) {
     val radioOptions = listOf("Locale", "Internet")
     val (selectedOption, onOptionSelected) = remember {mutableStateOf(radioOptions[0])}
 
     var lien by remember { mutableStateOf("") }
 
     AlertDialog(
-        onDismissRequest = annuler,
+        onDismissRequest = dismiss,
         title = { Text(text = "Importer un jeu de question") },
         text = {
             Column {
@@ -220,13 +249,13 @@ fun ImportDialog(annuler: () -> Unit, confirmer: () -> Unit) {
         confirmButton = {
             Button(
                 // TODO : on charge le jeu de question dans le sujet
-                onClick = confirmer,
+                onClick = dismiss,
                 content = { Text("Importer") }
             )
         },
         dismissButton = {
             Button(
-                onClick = annuler,
+                onClick = dismiss,
                 content = { Text("Annuler") }
             )
         }
