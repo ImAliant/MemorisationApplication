@@ -79,15 +79,13 @@ fun HomeScreen(padding: PaddingValues, model: HomeViewModel = viewModel()) {
 
     if (creationRequest) {
         CreationDialog(
-            dismiss = model::dismissCreation,
-            model = model
+            dismiss = model::dismissCreation, model = model
         )
     }
 
     if (importationRequest) {
         ImportDialog(
-            dismiss = model::dismissImportation,
-            model = model
+            dismiss = model::dismissImportation, model = model
         )
     }
 
@@ -104,15 +102,13 @@ fun HomeScreen(padding: PaddingValues, model: HomeViewModel = viewModel()) {
     }
 
     Column(
-        modifier = Modifier.padding(padding),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier.padding(padding), horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ShowList(setOfQuestions, currentSelection, model::updateSelection)
 
         ActionRow(context, model)
 
-        Button(
-            onClick = { Toast.makeText(context, "Start", Toast.LENGTH_SHORT).show() }) {
+        Button(onClick = { Toast.makeText(context, "Start", Toast.LENGTH_SHORT).show() }) {
             Text(text = context.getString(R.string.main_button_start), fontSize = 30.sp)
         }
 
@@ -124,12 +120,10 @@ fun HomeScreen(padding: PaddingValues, model: HomeViewModel = viewModel()) {
 
 @Composable
 private fun DeleteRow(
-    context: Context,
-    model: HomeViewModel
+    context: Context, model: HomeViewModel
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center
+        modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
     ) {
         Button(
             onClick = {
@@ -142,8 +136,7 @@ private fun DeleteRow(
 
         Spacer(modifier = Modifier.padding(2.dp))
 
-        Button(
-            enabled = false, /*TODO: Activer uniquement quand on a qqch de sélectionner */
+        Button(enabled = false, /*TODO: Activer uniquement quand on a qqch de sélectionner */
             onClick = {
                 (model::doAction)(ActionHome.DELETION_SELECT)
             }) {
@@ -154,8 +147,7 @@ private fun DeleteRow(
 
 @Composable
 private fun ActionRow(
-    context: Context,
-    model: HomeViewModel
+    context: Context, model: HomeViewModel
 ) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
         Button(onClick = {
@@ -183,41 +175,25 @@ private fun ActionRow(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreationDialog(
-    dismiss: () -> Unit,
-    model: HomeViewModel = viewModel()
+    dismiss: () -> Unit, model: HomeViewModel = viewModel()
 ) {
     val sujet by model.sujet
 
-    AlertDialog(
-        onDismissRequest = dismiss,
-        title = { Text(text = "Créer un sujet") },
-        text = {
-            OutlinedTextField(
-                sujet,
-                label = { Text("Nouveau sujet") },
-                onValueChange = model::onSujetChange
-            )
-        },
-        confirmButton = {
-            Button(
-                onClick = model::addSet,
-                content = { Text("Ajouter") }
-            )
-        },
-        dismissButton = {
-            Button(
-                onClick = dismiss,
-                content = { Text("Annuler") }
-            )
-        }
-    )
+    AlertDialog(onDismissRequest = dismiss, title = { Text(text = "Créer un sujet") }, text = {
+        OutlinedTextField(
+            sujet, label = { Text("Nouveau sujet") }, onValueChange = model::onSujetChange
+        )
+    }, confirmButton = {
+        Button(onClick = model::addSet, content = { Text("Ajouter") })
+    }, dismissButton = {
+        Button(onClick = dismiss, content = { Text("Annuler") })
+    })
 }
 
 @OptIn(ExperimentalMaterial3Api::class, DelicateCoroutinesApi::class)
 @Composable
 fun ImportDialog(
-    dismiss: () -> Unit,
-    model: HomeViewModel
+    dismiss: () -> Unit, model: HomeViewModel
 ) {
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(ActionImport.FILE) }
 
@@ -233,8 +209,7 @@ fun ImportDialog(
         }
     }
 
-    AlertDialog(
-        onDismissRequest = dismiss,
+    AlertDialog(onDismissRequest = dismiss,
         title = { Text(text = "Importer un jeu de question") },
         text = {
             Column {
@@ -251,8 +226,7 @@ fun ImportDialog(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             RadioButton(
-                                selected = (text == selectedOption),
-                                onClick = null
+                                selected = (text == selectedOption), onClick = null
                             )
                             Text(
                                 text = text.toString(),
@@ -261,17 +235,14 @@ fun ImportDialog(
                             )
 
                             if (text == ActionImport.FILE) {
-                                Button(
-                                    enabled = selectedOption == ActionImport.FILE,
+                                Button(enabled = selectedOption == ActionImport.FILE,
                                     modifier = Modifier.padding(start = 16.dp),
                                     onClick = {
                                         filePickerLauncher.launch(
-                                            Intent(Intent.ACTION_OPEN_DOCUMENT)
-                                                .addCategory(Intent.CATEGORY_OPENABLE)
+                                            Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE)
                                                 .setType("*/*")
                                         )
-                                    }
-                                ) {
+                                    }) {
                                     Text(
                                         text = "Explorateur",
                                         style = MaterialTheme.typography.labelSmall
@@ -282,52 +253,38 @@ fun ImportDialog(
                     }
                 }
 
-                OutlinedTextField(
-                    enabled = selectedOption == ActionImport.INTERNET,
+                OutlinedTextField(enabled = selectedOption == ActionImport.INTERNET,
                     value = lien,
                     onValueChange = { newTextValue -> lien = newTextValue },
-                    label = { Text(text = "Lien") }
-                )
+                    label = { Text(text = "Lien") })
             }
         },
         confirmButton = {
-            Button(
-                onClick = { GlobalScope.launch { model.import(ctx, lien) } },
-                content = { Text("Importer") }
-            )
+            Button(onClick = { GlobalScope.launch { model.import(ctx, lien) } },
+                content = { Text("Importer") })
         },
         dismissButton = {
-            Button(
-                onClick = dismiss,
-                content = { Text("Annuler") }
-            )
-        }
-    )
+            Button(onClick = dismiss, content = { Text("Annuler") })
+        })
 }
 
 @Composable
-fun ErrorDialog(errMsg: String, dismiss: () -> Unit) =
-    AlertDialog(onDismissRequest = dismiss,
-        title = { Text(text = "Erreur") },
-        text = { Text(text = errMsg) },
-        confirmButton = { Button(onClick = dismiss) { Text(text = "Ok") } }
-    )
+fun ErrorDialog(errMsg: String, dismiss: () -> Unit) = AlertDialog(onDismissRequest = dismiss,
+    title = { Text(text = "Erreur") },
+    text = { Text(text = errMsg) },
+    confirmButton = { Button(onClick = dismiss) { Text(text = "Ok") } })
 
 @Composable
-fun DeletionDialog(dismiss: () -> Unit) =
-    AlertDialog(onDismissRequest = dismiss,
-        title = { Text(text = "Supprimer un jeu de question") },
-        text = { Text(text = "Voulez-vous supprimer ce jeu de question ?") },
-        confirmButton = { Button(onClick = dismiss) { Text(text = "Ok") } }
-    )
+fun DeletionDialog(dismiss: () -> Unit) = AlertDialog(onDismissRequest = dismiss,
+    title = { Text(text = "Supprimer un jeu de question") },
+    text = { Text(text = "Voulez-vous supprimer ce jeu de question ?") },
+    confirmButton = { Button(onClick = dismiss) { Text(text = "Ok") } })
 
 @Composable
-fun DeletionDBDialog(dismiss: () -> Unit) =
-    AlertDialog(onDismissRequest = dismiss,
-        title = { Text(text = "Supprimer la base de données") },
-        text = { Text(text = "Voulez-vous supprimer la base de données ?") },
-        confirmButton = { Button(onClick = dismiss) { Text(text = "Ok") } }
-    )
+fun DeletionDBDialog(dismiss: () -> Unit) = AlertDialog(onDismissRequest = dismiss,
+    title = { Text(text = "Supprimer la base de données") },
+    text = { Text(text = "Voulez-vous supprimer la base de données ?") },
+    confirmButton = { Button(onClick = dismiss) { Text(text = "Ok") } })
 
 @Composable
 fun ShowList(
@@ -336,8 +293,7 @@ fun ShowList(
     updateSelection: (SetQuestions) -> Unit
 ) {
     LazyColumn(
-        Modifier
-            .fillMaxHeight(0.6f)
+        Modifier.fillMaxHeight(0.6f)
     ) {
         itemsIndexed(sets) { index, item ->
             ListItem(index, item, currentSelection, updateSelection)
@@ -365,8 +321,7 @@ fun ListItem(
         colors = CardDefaults.cardColors(containerColor)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             Text(set.toString(), modifier = Modifier.padding(2.dp))
         }

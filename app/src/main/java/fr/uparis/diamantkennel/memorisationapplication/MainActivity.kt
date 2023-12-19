@@ -35,8 +35,7 @@ class MainActivity : ComponentActivity() {
             MemorisationApplicationTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
                     MainScreenMainActivity()
                 }
@@ -61,8 +60,7 @@ fun MainScreenActivityPreview() {
 fun MainScreen() {
     val navController = rememberNavController()
 
-    Scaffold(topBar = { TopBar() },
-        bottomBar = { BottomBar(navController) }) { padding ->
+    Scaffold(topBar = { TopBar() }, bottomBar = { BottomBar(navController) }) { padding ->
         NavHost(
             navController = navController,
             startDestination = HOME,
@@ -77,13 +75,12 @@ fun MainScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar() =
-    CenterAlignedTopAppBar(title = {
-        Text(
-            text = LocalContext.current.getString(R.string.app_name),
-            style = MaterialTheme.typography.displayMedium
-        )
-    })
+fun TopBar() = CenterAlignedTopAppBar(title = {
+    Text(
+        text = LocalContext.current.getString(R.string.app_name),
+        style = MaterialTheme.typography.displayMedium
+    )
+})
 
 @Composable
 fun BottomBar(navController: NavHostController) =
@@ -91,15 +88,12 @@ fun BottomBar(navController: NavHostController) =
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
 
-        BottomNavigationItem(
-            selected = currentRoute == HOME,
-            onClick = {
-                navController.navigate(HOME) { launchSingleTop = true }
-            },
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.Home,
-                    contentDescription = LocalContext.current.getString(R.string.home_button)
-                )
-            })
+        BottomNavigationItem(selected = currentRoute == HOME, onClick = {
+            navController.navigate(HOME) { launchSingleTop = true }
+        }, icon = {
+            Icon(
+                imageVector = Icons.Default.Home,
+                contentDescription = LocalContext.current.getString(R.string.home_button)
+            )
+        })
     }

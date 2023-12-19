@@ -18,9 +18,8 @@ abstract class QuestionsDB : RoomDatabase() {
 
         fun getDataBase(c: Context): QuestionsDB {
             if (instance != null) return instance!!
-            val db =
-                Room.databaseBuilder(c.applicationContext, QuestionsDB::class.java, "memo")
-                    .fallbackToDestructiveMigration().build()
+            val db = Room.databaseBuilder(c.applicationContext, QuestionsDB::class.java, "memo")
+                .fallbackToDestructiveMigration().build()
             instance = db
             return instance!!
         }

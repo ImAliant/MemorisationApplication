@@ -4,12 +4,9 @@ import androidx.room.Embedded
 import androidx.room.Relation
 
 data class SetOfQuestions(
-    @Embedded val set: SetQuestions,
-    @Relation(
-        parentColumn = "idSet",
-        entityColumn = "setId"
-    )
-    val questions: List<Question>
+    @Embedded val set: SetQuestions, @Relation(
+        parentColumn = "idSet", entityColumn = "setId"
+    ) val questions: List<Question>
 ) {
     override fun toString() = set.name
 }

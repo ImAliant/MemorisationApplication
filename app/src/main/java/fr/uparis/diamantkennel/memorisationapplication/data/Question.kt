@@ -5,14 +5,12 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 @Entity(
-    foreignKeys = [
-        ForeignKey(
-            entity = SetQuestions::class,
-            parentColumns = ["idSet"],
-            childColumns = ["setId"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ]
+    foreignKeys = [ForeignKey(
+        entity = SetQuestions::class,
+        parentColumns = ["idSet"],
+        childColumns = ["setId"],
+        onDelete = ForeignKey.CASCADE
+    )]
 )
 data class Question(
     @PrimaryKey(autoGenerate = true) val idQuestion: Int = 0,

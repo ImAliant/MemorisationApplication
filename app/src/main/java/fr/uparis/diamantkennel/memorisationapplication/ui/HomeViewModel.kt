@@ -138,38 +138,36 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     suspend fun import(ctx: Context, path: String) {
-        val data =
-            flow {
-                if (path.startsWith("content://")) {
-                    // Local file
-                    val reader =
-                        BufferedReader(
-                            InputStreamReader(
-                                ctx.contentResolver.openInputStream(
-                                    Uri.parse(
-                                        path
-                                    )
-                                )
+        val data = flow {
+            if (path.startsWith("content://")) {
+                // Local file
+                val reader = BufferedReader(
+                    InputStreamReader(
+                        ctx.contentResolver.openInputStream(
+                            Uri.parse(
+                                path
                             )
                         )
+                    )
+                )
 
-                    emit(reader.use { it.readText() })
-                } else {
-                    // File from internet
-                    val url = URL(path)
-                    val connection = url.openConnection() as HttpURLConnection
-                    connection.requestMethod = "GET"
+                emit(reader.use { it.readText() })
+            } else {
+                // File from internet
+                val url = URL(path)
+                val connection = url.openConnection() as HttpURLConnection
+                connection.requestMethod = "GET"
 
-                    val inputStream = connection.inputStream
-                    val reader = BufferedReader(InputStreamReader(inputStream))
+                val inputStream = connection.inputStream
+                val reader = BufferedReader(InputStreamReader(inputStream))
 
-                    val content = reader.use { it.readText() }
+                val content = reader.use { it.readText() }
 
-                    connection.disconnect()
+                connection.disconnect()
 
-                    emit(content)
-                }
-            }.flowOn(Dispatchers.IO)
+                emit(content)
+            }
+        }.flowOn(Dispatchers.IO)
 
         dismissImportation()
 
