@@ -182,7 +182,9 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                },
                ...
              ]
-           }  */
+           }
+
+           Sample available there: https://pastebin.com/raw/7jUWF313 */
         val json = JSONObject(data.single())
 
         val setId = dao.insert(SetQuestions(name = json.getString("name").trim()))
