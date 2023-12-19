@@ -107,7 +107,7 @@ fun HomeScreen(padding: PaddingValues, model: HomeViewModel = viewModel()) {
             onClick = { Toast.makeText(context, "Start", Toast.LENGTH_SHORT).show() }) {
             Text(text = context.getString(R.string.main_button_start), fontSize = 30.sp)
         }
-        
+
         Spacer(modifier = Modifier.padding(top = 50.dp))
 
         DeleteRow(context, model)
@@ -119,8 +119,10 @@ private fun DeleteRow(
     context: Context,
     model: HomeViewModel
 ) {
-    Row(modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,/*, horizontalArrangement = Arrangement.SpaceEvenly*/) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,/*, horizontalArrangement = Arrangement.SpaceEvenly*/
+    ) {
         Button(onClick = {
             (model::doAction)(ActionHome.DELETION_DB)
         }, colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.red))) {
@@ -169,13 +171,13 @@ private fun ActionRow(
 @Composable
 fun CreationDialog(
     dismiss: () -> Unit,
-    model : HomeViewModel = viewModel()
+    model: HomeViewModel = viewModel()
 ) {
     val sujet by model.sujet
 
     AlertDialog(
         onDismissRequest = dismiss,
-        title = { Text(text ="Créer un sujet") },
+        title = { Text(text = "Créer un sujet") },
         text = {
             OutlinedTextField(
                 sujet,
@@ -205,7 +207,7 @@ fun ImportDialog(
     model: HomeViewModel
 ) {
     val radioOptions = listOf("Locale", "Internet")
-    val (selectedOption, onOptionSelected) = remember {mutableStateOf(radioOptions[0])}
+    val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
 
     var lien by remember { mutableStateOf("") }
 
@@ -241,8 +243,8 @@ fun ImportDialog(
 
                 OutlinedTextField(
                     value = lien,
-                    onValueChange = {newTextValue -> lien = newTextValue},
-                    label = {Text(text = "Lien") }
+                    onValueChange = { newTextValue -> lien = newTextValue },
+                    label = { Text(text = "Lien") }
                 )
             }
         },
@@ -265,25 +267,25 @@ fun ImportDialog(
 @Composable
 fun ErrorDialog(errMsg: String, dismiss: () -> Unit) =
     AlertDialog(onDismissRequest = dismiss,
-        title = { Text(text = "Erreur")},
+        title = { Text(text = "Erreur") },
         text = { Text(text = errMsg) },
-        confirmButton = {Button(onClick = dismiss) { Text(text = "Ok") }}
+        confirmButton = { Button(onClick = dismiss) { Text(text = "Ok") } }
     )
 
 @Composable
 fun DeletionDialog(dismiss: () -> Unit) =
     AlertDialog(onDismissRequest = dismiss,
-        title = { Text(text = "Supprimer un jeu de question")},
+        title = { Text(text = "Supprimer un jeu de question") },
         text = { Text(text = "Voulez-vous supprimer ce jeu de question ?") },
-        confirmButton = {Button(onClick = dismiss) { Text(text = "Ok") }}
+        confirmButton = { Button(onClick = dismiss) { Text(text = "Ok") } }
     )
 
 @Composable
 fun DeletionDBDialog(dismiss: () -> Unit) =
     AlertDialog(onDismissRequest = dismiss,
-        title = { Text(text = "Supprimer la base de données")},
+        title = { Text(text = "Supprimer la base de données") },
         text = { Text(text = "Voulez-vous supprimer la base de données ?") },
-        confirmButton = {Button(onClick = dismiss) { Text(text = "Ok") }}
+        confirmButton = { Button(onClick = dismiss) { Text(text = "Ok") } }
     )
 
 @Composable
@@ -321,10 +323,10 @@ fun ListItem(
         Modifier.fillMaxSize(),
         colors = CardDefaults.cardColors(containerColor)
     ) {
-        Row (
+        Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
-        ){
+        ) {
             Text(set.toString(), modifier = Modifier.padding(2.dp))
         }
     }

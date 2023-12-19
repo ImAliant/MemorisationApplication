@@ -68,19 +68,23 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             ActionHome.CREATION -> {
                 creation.value = true
             }
+
             ActionHome.IMPORTATION -> {
                 importation.value = true
             }
+
             ActionHome.MODIFIER -> {
                 if (selected.value != null) {
                     modification.value = true
                 }
             }
+
             ActionHome.DELETION_SELECT -> {
                 if (selected.value != null) {
                     deletionSelect.value = true
                 }
             }
+
             ActionHome.DELETION_DB -> {
                 deletionDB.value = true
             }
@@ -114,9 +118,11 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun dismissCreation() {
         creation.value = false
     }
+
     fun dismissModification() {
         modification.value = false
     }
+
     fun dismissImportation() {
         importation.value = false
     }
