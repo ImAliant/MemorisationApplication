@@ -103,7 +103,6 @@ fun HomeScreen(padding: PaddingValues, model: HomeViewModel = viewModel()) {
         ActionRow(context, model)
 
         Button(
-            modifier = Modifier.fillMaxWidth(0.9f),
             onClick = { Toast.makeText(context, "Start", Toast.LENGTH_SHORT).show() }) {
             Text(text = context.getString(R.string.main_button_start), fontSize = 30.sp)
         }
@@ -121,19 +120,24 @@ private fun DeleteRow(
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,/*, horizontalArrangement = Arrangement.SpaceEvenly*/
+        horizontalArrangement = Arrangement.Center
     ) {
-        Button(onClick = {
-            (model::doAction)(ActionHome.DELETION_DB)
-        }, colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.red))) {
+        Button(
+            onClick = {
+                (model::doAction)(ActionHome.DELETION_DB)
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.red))
+        ) {
             Text(text = context.getString(R.string.main_button_deletebase))
         }
 
         Spacer(modifier = Modifier.padding(2.dp))
 
-        Button(onClick = {
-            (model::doAction)(ActionHome.DELETION_SELECT)
-        }) {
+        Button(
+            enabled = false, /*TODO: Activer uniquement quand on a qqch de sélectionner */
+            onClick = {
+                (model::doAction)(ActionHome.DELETION_SELECT)
+            }) {
             Text(text = context.getString(R.string.main_button_delete))
         }
     }
@@ -296,7 +300,7 @@ fun ShowList(
 ) {
     LazyColumn(
         Modifier
-            .fillMaxHeight(0.7f)
+            .fillMaxHeight(0.6f)
     ) {
         itemsIndexed(sets) { index, item ->
             ListItem(index, item, currentSelection, updateSelection)
