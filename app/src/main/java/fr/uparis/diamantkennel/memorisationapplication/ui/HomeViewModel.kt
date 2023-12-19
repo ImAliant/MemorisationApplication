@@ -130,4 +130,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun cleanErrors() {
         error.value = null
     }
+
+    fun import(path: String) {
+        dismissImportation()
+    }
 }

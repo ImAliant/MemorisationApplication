@@ -1,7 +1,11 @@
 package fr.uparis.diamantkennel.memorisationapplication
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -45,6 +49,7 @@ import fr.uparis.diamantkennel.memorisationapplication.ui.ActionHome
 import fr.uparis.diamantkennel.memorisationapplication.ui.ActionImport
 import fr.uparis.diamantkennel.memorisationapplication.ui.ErrorsAjout
 import fr.uparis.diamantkennel.memorisationapplication.ui.HomeViewModel
+
 
 @Composable
 fun HomeScreen(padding: PaddingValues, model: HomeViewModel = viewModel()) {
@@ -215,6 +220,15 @@ fun ImportDialog(
 
     var lien by remember { mutableStateOf("") }
 
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val uri = result.data?.data
+            lien = uri?.let { it.toString() } ?: lien
+        }
+    }
+
     AlertDialog(
         onDismissRequest = dismiss,
         title = { Text(text = "Importer un jeu de question") },
@@ -246,7 +260,13 @@ fun ImportDialog(
                                 Button(
                                     enabled = selectedOption == ActionImport.FILE,
                                     modifier = Modifier.padding(start = 16.dp),
-                                    onClick = { /*TODO*/ }
+                                    onClick = {
+                                        filePickerLauncher.launch(
+                                            Intent(Intent.ACTION_OPEN_DOCUMENT)
+                                                .addCategory(Intent.CATEGORY_OPENABLE)
+                                                .setType("*/*")
+                                        )
+                                    }
                                 ) {
                                     Text(
                                         text = "Explorateur",
@@ -269,7 +289,7 @@ fun ImportDialog(
         confirmButton = {
             Button(
                 // TODO : on charge le jeu de question dans le sujet
-                onClick = dismiss,
+                onClick = { model.import(lien) },
                 content = { Text("Importer") }
             )
         },
