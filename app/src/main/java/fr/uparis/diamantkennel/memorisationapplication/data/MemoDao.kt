@@ -10,7 +10,10 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface MemoDao {
     @Insert
-    suspend fun insert(set: SetQuestions)
+    suspend fun insert(set: SetQuestions): Long
+
+    @Insert
+    suspend fun insertQuestion(question: Question)
 
     @Transaction
     @Query("SELECT * FROM SetQuestions")

@@ -222,6 +222,7 @@ fun ImportDialog(
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(ActionImport.FILE) }
 
     var lien by remember { mutableStateOf("") }
+    var ctx = LocalContext.current
 
     val filePickerLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -291,8 +292,7 @@ fun ImportDialog(
         },
         confirmButton = {
             Button(
-                // TODO : on charge le jeu de question dans le sujet
-                onClick = { GlobalScope.launch { model.import(lien) } },
+                onClick = { GlobalScope.launch { model.import(ctx, lien) } },
                 content = { Text("Importer") }
             )
         },

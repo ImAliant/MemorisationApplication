@@ -1,18 +1,22 @@
 package fr.uparis.diamantkennel.memorisationapplication.ui
 
 import android.app.Application
+import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
+import android.net.Uri
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import fr.uparis.diamantkennel.memorisationapplication.MemoApplication
+import fr.uparis.diamantkennel.memorisationapplication.data.Question
 import fr.uparis.diamantkennel.memorisationapplication.data.SetQuestions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import java.io.BufferedReader
-import java.io.File
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
@@ -52,13 +56,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
+
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                dao.insert(
-                    SetQuestions(
-                        name = sujet.value.trim()
-                    )
-                )
+                dao.insert(SetQuestions(name = sujet.value.trim()))
             } catch (_: SQLiteConstraintException) {
                 error.value = ErrorsAjout.DUPLICATE
             }
@@ -136,14 +137,23 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         error.value = null
     }
 
-    suspend fun import(path: String) {
+    suspend fun import(ctx: Context, path: String) {
         val data =
             flow {
                 if (path.startsWith("content://")) {
                     // Local file
-                    val bufferedReader: BufferedReader = File(path).bufferedReader()
+                    val reader =
+                        BufferedReader(
+                            InputStreamReader(
+                                ctx.contentResolver.openInputStream(
+                                    Uri.parse(
+                                        path
+                                    )
+                                )
+                            )
+                        )
 
-                    emit(bufferedReader.use { it.readText() })
+                    emit(reader.use { it.readText() })
                 } else {
                     // File from internet
                     val url = URL(path)
@@ -153,12 +163,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                     val inputStream = connection.inputStream
                     val reader = BufferedReader(InputStreamReader(inputStream))
 
-                    var content = ""
-                    var line: String? = reader.readLine()
-                    while (line != null) {
-                        content += line
-                        line = reader.readLine()
-                    }
+                    val content = reader.use { it.readText() }
 
                     connection.disconnect()
 
@@ -168,7 +173,32 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
         dismissImportation()
 
-        // `data`
-        // Correspond au contenu du fichier qu'il faut ajouter à la bdd
+
+        /* Configuration used:
+           {
+             "name": "SetNameString",
+             "questions": [
+               {
+                 "question": "QuestionString",
+                 "reponse": "ResponseString"
+               },
+               ...
+             ]
+           }  */
+        val json = JSONObject(data.single())
+
+        val setId = dao.insert(SetQuestions(name = json.getString("name").trim()))
+
+        val setQuestions = json.getJSONArray("questions")
+        for (i in 0 until setQuestions.length()) {
+            val questionObject = setQuestions.getJSONObject(i)
+            dao.insertQuestion(
+                Question(
+                    setId = setId.toInt(),
+                    enonce = questionObject.getString("question"),
+                    reponse = questionObject.getString("reponse")
+                )
+            )
+        }
     }
 }
