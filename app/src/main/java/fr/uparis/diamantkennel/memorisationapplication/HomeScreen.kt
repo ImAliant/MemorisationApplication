@@ -49,6 +49,9 @@ import fr.uparis.diamantkennel.memorisationapplication.ui.ActionHome
 import fr.uparis.diamantkennel.memorisationapplication.ui.ActionImport
 import fr.uparis.diamantkennel.memorisationapplication.ui.ErrorsAjout
 import fr.uparis.diamantkennel.memorisationapplication.ui.HomeViewModel
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -210,7 +213,7 @@ fun CreationDialog(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, DelicateCoroutinesApi::class)
 @Composable
 fun ImportDialog(
     dismiss: () -> Unit,
@@ -289,7 +292,7 @@ fun ImportDialog(
         confirmButton = {
             Button(
                 // TODO : on charge le jeu de question dans le sujet
-                onClick = { model.import(lien) },
+                onClick = { GlobalScope.launch { model.import(lien) } },
                 content = { Text("Importer") }
             )
         },

@@ -8,7 +8,14 @@ import androidx.lifecycle.viewModelScope
 import fr.uparis.diamantkennel.memorisationapplication.MemoApplication
 import fr.uparis.diamantkennel.memorisationapplication.data.SetQuestions
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import java.io.BufferedReader
+import java.io.File
+import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = (application as MemoApplication).database.memoDao()
@@ -129,7 +136,39 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         error.value = null
     }
 
-    fun import(path: String) {
+    suspend fun import(path: String) {
+        val data =
+            flow {
+                if (path.startsWith("content://")) {
+                    // Local file
+                    val bufferedReader: BufferedReader = File(path).bufferedReader()
+
+                    emit(bufferedReader.use { it.readText() })
+                } else {
+                    // File from internet
+                    val url = URL(path)
+                    val connection = url.openConnection() as HttpURLConnection
+                    connection.requestMethod = "GET"
+
+                    val inputStream = connection.inputStream
+                    val reader = BufferedReader(InputStreamReader(inputStream))
+
+                    var content = ""
+                    var line: String? = reader.readLine()
+                    while (line != null) {
+                        content += line
+                        line = reader.readLine()
+                    }
+
+                    connection.disconnect()
+
+                    emit(content)
+                }
+            }.flowOn(Dispatchers.IO)
+
         dismissImportation()
+
+        // `data`
+        // Correspond au contenu du fichier qu'il faut ajouter à la bdd
     }
 }
