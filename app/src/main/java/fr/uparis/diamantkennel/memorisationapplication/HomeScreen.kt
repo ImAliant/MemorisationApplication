@@ -42,6 +42,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.uparis.diamantkennel.memorisationapplication.data.SetOfQuestions
 import fr.uparis.diamantkennel.memorisationapplication.data.SetQuestions
 import fr.uparis.diamantkennel.memorisationapplication.ui.ActionHome
+import fr.uparis.diamantkennel.memorisationapplication.ui.ActionImport
 import fr.uparis.diamantkennel.memorisationapplication.ui.ErrorsAjout
 import fr.uparis.diamantkennel.memorisationapplication.ui.HomeViewModel
 
@@ -210,8 +211,7 @@ fun ImportDialog(
     dismiss: () -> Unit,
     model: HomeViewModel
 ) {
-    val radioOptions = listOf("Locale", "Internet")
-    val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
+    val (selectedOption, onOptionSelected) = remember { mutableStateOf(ActionImport.FILE) }
 
     var lien by remember { mutableStateOf("") }
 
@@ -221,7 +221,7 @@ fun ImportDialog(
         text = {
             Column {
                 Column(Modifier.selectableGroup()) {
-                    radioOptions.forEach { text ->
+                    ActionImport.values().forEach { text ->
                         Row(
                             Modifier
                                 .selectable(
@@ -230,22 +230,36 @@ fun ImportDialog(
                                     role = Role.RadioButton
                                 )
                                 .padding(horizontal = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             RadioButton(
                                 selected = (text == selectedOption),
                                 onClick = null
                             )
                             Text(
-                                text = text,
+                                text = text.toString(),
                                 style = MaterialTheme.typography.bodyLarge,
                                 modifier = Modifier.padding(start = 16.dp)
                             )
+
+                            if (text == ActionImport.FILE) {
+                                Button(
+                                    enabled = selectedOption == ActionImport.FILE,
+                                    modifier = Modifier.padding(start = 16.dp),
+                                    onClick = { /*TODO*/ }
+                                ) {
+                                    Text(
+                                        text = "Explorateur",
+                                        style = MaterialTheme.typography.labelSmall
+                                    )
+                                }
+                            }
                         }
                     }
                 }
 
                 OutlinedTextField(
+                    enabled = selectedOption == ActionImport.INTERNET,
                     value = lien,
                     onValueChange = { newTextValue -> lien = newTextValue },
                     label = { Text(text = "Lien") }
