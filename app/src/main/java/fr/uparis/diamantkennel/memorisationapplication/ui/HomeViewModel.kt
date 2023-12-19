@@ -88,8 +88,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             ActionHome.DELETION_DB -> {
                 deletionDB.value = true
             }
-
-            null -> return
         }
     }
 
