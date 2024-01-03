@@ -313,8 +313,8 @@ fun ListItem(
 ) {
     val containerColor = when {
         currentSelection == set.set -> colorResource(id = R.color.selected)
-        index % 2 == 0 -> colorResource(id = R.color.black)
-        else -> colorResource(id = R.color.purple_200)
+        index % 2 == 0 -> colorResource(id = R.color.list_alternate)
+        else -> colorResource(id = R.color.list)
     }
 
     Card(
