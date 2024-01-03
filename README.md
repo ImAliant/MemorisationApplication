@@ -3,17 +3,17 @@
 ## A faire ?
 
 - Jeu de question
-  - [ ] Ajouter / Importer
-    - Fichier local
-    - Lien HTTP
-  - [ ] Supprimer
+  - [x] Ajouter / Importer
+    - [x] Fichier local
+    - [x] Lien HTTP
+  - [x] Supprimer
   - Modifier
     - [ ] Créer des questions
     - [ ] Supprimer des questions
-  - [ ] Choisir / Sélection
+  - [x] Choisir / Sélection
   - [ ] Commencer un jeu
   - [ ] Reprendre la progression d'un jeu
-  - [ ] Afficher les statistiques de tout les jeux
+  - [ ] Afficher les statistiques de tous les jeux
 - Dans un jeu
   - [ ] Consulter la réponse à une question trop difficile
   - [ ] Choisir le statut d'une question
@@ -32,7 +32,7 @@
 
 ## Requis
 
-- Jetpack Compose (interfacec)
+- Jetpack Compose (interface)
   - ViewModel
 - Room (base de donnée)
 
