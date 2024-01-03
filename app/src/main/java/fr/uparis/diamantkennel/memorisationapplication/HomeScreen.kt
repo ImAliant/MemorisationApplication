@@ -94,12 +94,14 @@ fun HomeScreen(
 
     if (deletionRequest) {
         DeletionDialog(
+            model::dismissDeleteOne,
             model::deleteSelected
         )
     }
 
     if (deletionDBRequest) {
         DeletionDBDialog(
+            model::dismissDeleteAll,
             model::deleteAll
         )
     }
@@ -271,16 +273,18 @@ fun ErrorDialog(errMsg: String, dismiss: () -> Unit) = AlertDialog(onDismissRequ
     confirmButton = { Button(onClick = dismiss) { Text(text = "Ok") } })
 
 @Composable
-fun DeletionDialog(dismiss: () -> Unit) = AlertDialog(onDismissRequest = dismiss,
-    title = { Text(text = "Supprimer un jeu de question") },
-    text = { Text(text = "Voulez-vous supprimer ce jeu de question ?") },
-    confirmButton = { Button(onClick = dismiss) { Text(text = "Ok") } })
+fun DeletionDialog(dismiss: () -> Unit, confirm: () -> Unit) =
+    AlertDialog(onDismissRequest = dismiss,
+        title = { Text(text = "Supprimer un jeu de question") },
+        text = { Text(text = "Voulez-vous supprimer ce jeu de question ?") },
+        confirmButton = { Button(onClick = confirm) { Text(text = "Ok") } })
 
 @Composable
-fun DeletionDBDialog(dismiss: () -> Unit) = AlertDialog(onDismissRequest = dismiss,
-    title = { Text(text = "Supprimer la base de données") },
-    text = { Text(text = "Voulez-vous supprimer la base de données ?") },
-    confirmButton = { Button(onClick = dismiss) { Text(text = "Ok") } })
+fun DeletionDBDialog(dismiss: () -> Unit, confirm: () -> Unit) =
+    AlertDialog(onDismissRequest = dismiss,
+        title = { Text(text = "Supprimer la base de données") },
+        text = { Text(text = "Voulez-vous supprimer la base de données ?") },
+        confirmButton = { Button(onClick = confirm) { Text(text = "Ok") } })
 
 @Composable
 fun ShowList(

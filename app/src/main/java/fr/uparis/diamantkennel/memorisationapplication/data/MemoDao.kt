@@ -4,7 +4,6 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -15,7 +14,6 @@ interface MemoDao {
     @Insert
     suspend fun insertQuestion(question: Question)
 
-    @Transaction
     @Query("SELECT * FROM SetQuestions")
     fun loadAllSets(): Flow<List<SetOfQuestions>>
 

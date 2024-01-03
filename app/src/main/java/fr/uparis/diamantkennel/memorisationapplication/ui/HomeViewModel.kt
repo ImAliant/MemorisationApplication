@@ -125,6 +125,14 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         creation.value = false
     }
 
+    fun dismissDeleteOne() {
+        deletionSelect.value = false
+    }
+
+    fun dismissDeleteAll() {
+        deletionDB.value = false
+    }
+
     fun dismissModification() {
         modification.value = false
     }
