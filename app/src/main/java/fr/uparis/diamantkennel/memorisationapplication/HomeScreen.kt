@@ -43,6 +43,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import fr.uparis.diamantkennel.memorisationapplication.data.SetOfQuestions
 import fr.uparis.diamantkennel.memorisationapplication.data.SetQuestions
 import fr.uparis.diamantkennel.memorisationapplication.ui.ActionHome
@@ -55,7 +56,9 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun HomeScreen(padding: PaddingValues, model: HomeViewModel = viewModel()) {
+fun HomeScreen(
+    padding: PaddingValues, navController: NavController, model: HomeViewModel = viewModel()
+) {
     val context = LocalContext.current
 
     val setOfQuestions by model.setFlow.collectAsState(listOf())
@@ -106,7 +109,7 @@ fun HomeScreen(padding: PaddingValues, model: HomeViewModel = viewModel()) {
     ) {
         ShowList(setOfQuestions, currentSelection, model::updateSelection)
 
-        ActionRow(context, model)
+        ActionRow(context, model, navController)
 
         Button(onClick = { Toast.makeText(context, "Start", Toast.LENGTH_SHORT).show() }) {
             Text(text = context.getString(R.string.main_button_start), fontSize = 30.sp)
@@ -128,9 +131,7 @@ private fun DeleteRow(
         modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
     ) {
         Button(
-            onClick = {
-                (model::doAction)(ActionHome.DELETION_DB)
-            },
+            onClick = { (model::doAction)(ActionHome.DELETION_DB) },
             colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.red))
         ) {
             Text(text = context.getString(R.string.main_button_deletebase))
@@ -138,37 +139,30 @@ private fun DeleteRow(
 
         Spacer(modifier = Modifier.padding(2.dp))
 
-        Button(enabled = selection != null,
-            onClick = {
-                (model::doAction)(ActionHome.DELETION_SELECT)
-            }) {
+        Button(enabled = selection != null, onClick = {
+            (model::doAction)(ActionHome.DELETION_SELECT)
+        }) {
             Text(text = context.getString(R.string.main_button_delete))
         }
     }
 }
 
 @Composable
-private fun ActionRow(
-    context: Context, model: HomeViewModel
-) {
+private fun ActionRow(context: Context, model: HomeViewModel, navController: NavController) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-        Button(onClick = {
-            (model::doAction)(ActionHome.CREATION)
-        }) {
+        Button(onClick = { (model::doAction)(ActionHome.CREATION) }) {
             Text(text = context.getString(R.string.main_button_create))
         }
 
         Spacer(modifier = Modifier.padding(2.dp))
 
-        Button(onClick = { Toast.makeText(context, "Modify", Toast.LENGTH_SHORT).show() }) {
+        Button(onClick = { navController.navigate(MODIFY_SET) }) {
             Text(text = context.getString(R.string.main_button_modify))
         }
 
         Spacer(modifier = Modifier.padding(2.dp))
 
-        Button(onClick = {
-            (model::doAction)(ActionHome.IMPORTATION)
-        }) {
+        Button(onClick = { (model::doAction)(ActionHome.IMPORTATION) }) {
             Text(text = context.getString(R.string.main_button_import))
         }
     }

@@ -66,7 +66,7 @@ fun MainScreen() {
             startDestination = HOME,
             modifier = Modifier.padding(padding)
         ) {
-            composable(HOME) { HomeScreen(padding) }
+            composable(HOME) { HomeScreen(padding, navController) }
             composable(MODIFY_SET) { ModifySetScreen(padding, navController) }
             composable(PLAY) { PlayScreen(padding, navController) }
         }
