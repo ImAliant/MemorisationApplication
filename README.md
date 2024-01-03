@@ -8,8 +8,8 @@
     - [x] Lien HTTP
   - [x] Supprimer
   - Modifier
-    - [ ] Créer des questions
-    - [ ] Supprimer des questions
+    - [x] Créer des questions
+    - [x] Supprimer des questions
   - [x] Choisir / Sélection
   - [ ] Commencer un jeu
   - [ ] Reprendre la progression d'un jeu
