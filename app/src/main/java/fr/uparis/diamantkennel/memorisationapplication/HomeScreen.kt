@@ -122,6 +122,8 @@ fun HomeScreen(padding: PaddingValues, model: HomeViewModel = viewModel()) {
 private fun DeleteRow(
     context: Context, model: HomeViewModel
 ) {
+    val selection by model.selected
+
     Row(
         modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
     ) {
@@ -136,7 +138,7 @@ private fun DeleteRow(
 
         Spacer(modifier = Modifier.padding(2.dp))
 
-        Button(enabled = false, /*TODO: Activer uniquement quand on a qqch de sélectionner */
+        Button(enabled = selection != null,
             onClick = {
                 (model::doAction)(ActionHome.DELETION_SELECT)
             }) {
