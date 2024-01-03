@@ -9,4 +9,7 @@
     <string name="main_button_start">Lancer</string>
     <string name="error_bad_entry">Erreur : entrée invalide</string>
     <string name="error_duplicate">Erreur : doublon</string>
+    <string name="modify_button_add">Ajouter</string>
+    <string name="modify_button_modify">Modifier</string>
+    <string name="modify_button_delete">Supprimer</string>
 </resources>

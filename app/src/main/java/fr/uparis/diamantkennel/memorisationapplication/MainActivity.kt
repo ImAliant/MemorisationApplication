@@ -67,7 +67,14 @@ fun MainScreen() {
             modifier = Modifier.padding(padding)
         ) {
             composable(HOME) { HomeScreen(padding, navController) }
-            composable(MODIFY_SET) { ModifySetScreen(padding, navController) }
+            composable("$MODIFY_SET/{$MODIFY_SET_ARGS}") {
+                it.arguments?.getString(MODIFY_SET_ARGS)?.let { idSet ->
+                    ModifySetScreen(
+                        padding,
+                        idSet.toInt()
+                    )
+                }
+            }
             composable(PLAY) { PlayScreen(padding, navController) }
         }
     }

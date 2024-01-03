@@ -15,6 +15,6 @@ import androidx.room.PrimaryKey
 data class Question(
     @PrimaryKey(autoGenerate = true) val idQuestion: Int = 0,
     val setId: Int, // Foreign key linking to SetQuestions
-    val enonce: String,
-    val reponse: String
+    var enonce: String,
+    var reponse: String
 )

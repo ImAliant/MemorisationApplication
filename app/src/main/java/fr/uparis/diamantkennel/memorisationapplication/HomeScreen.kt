@@ -151,6 +151,8 @@ private fun DeleteRow(
 
 @Composable
 private fun ActionRow(context: Context, model: HomeViewModel, navController: NavController) {
+    val selection by model.selected
+
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
         Button(onClick = { (model::doAction)(ActionHome.CREATION) }) {
             Text(text = context.getString(R.string.main_button_create))
@@ -158,7 +160,9 @@ private fun ActionRow(context: Context, model: HomeViewModel, navController: Nav
 
         Spacer(modifier = Modifier.padding(2.dp))
 
-        Button(onClick = { navController.navigate(MODIFY_SET) }) {
+        Button(
+            enabled = selection != null,
+            onClick = { navController.navigate("$MODIFY_SET/${selection?.idSet}") }) {
             Text(text = context.getString(R.string.main_button_modify))
         }
 
