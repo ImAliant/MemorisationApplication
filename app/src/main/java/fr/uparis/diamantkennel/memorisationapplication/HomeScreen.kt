@@ -20,7 +20,6 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -66,7 +65,6 @@ fun HomeScreen(
     val creationRequest by model.creation
     val importationRequest by model.importation
     val deletionRequest by model.deletionSelect
-    val deletionDBRequest by model.deletionDB
 
     val errorEntry by model.error
 
@@ -98,13 +96,6 @@ fun HomeScreen(
         )
     }
 
-    if (deletionDBRequest) {
-        DeletionDBDialog(
-            model::dismissDeleteAll,
-            model::deleteAll
-        )
-    }
-
     Column(
         modifier = Modifier.padding(padding), horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -120,32 +111,12 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.padding(top = 50.dp))
 
-        DeleteRow(context, model)
-    }
-}
-
-@Composable
-private fun DeleteRow(
-    context: Context, model: HomeViewModel
-) {
-    val selection by model.selected
-
-    Row(
-        modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
-    ) {
-        Button(
-            onClick = { (model::doAction)(ActionHome.DELETION_DB) },
-            colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.red))
-        ) {
-            Text(text = context.getString(R.string.main_button_deletebase))
-        }
-
-        Spacer(modifier = Modifier.padding(2.dp))
-
-        Button(enabled = selection != null, onClick = {
-            (model::doAction)(ActionHome.DELETION_SELECT)
-        }) {
-            Text(text = context.getString(R.string.main_button_delete))
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+            Button(enabled = currentSelection != null, onClick = {
+                model.doAction(ActionHome.DELETION_SELECT)
+            }) {
+                Text(text = context.getString(R.string.main_button_delete))
+            }
         }
     }
 }
@@ -155,7 +126,7 @@ private fun ActionRow(context: Context, model: HomeViewModel, navController: Nav
     val selection by model.selected
 
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-        Button(onClick = { (model::doAction)(ActionHome.CREATION) }) {
+        Button(onClick = { model.doAction(ActionHome.CREATION) }) {
             Text(text = context.getString(R.string.main_button_create))
         }
 
@@ -169,7 +140,7 @@ private fun ActionRow(context: Context, model: HomeViewModel, navController: Nav
 
         Spacer(modifier = Modifier.padding(2.dp))
 
-        Button(onClick = { (model::doAction)(ActionHome.IMPORTATION) }) {
+        Button(onClick = { model.doAction(ActionHome.IMPORTATION) }) {
             Text(text = context.getString(R.string.main_button_import))
         }
     }
@@ -282,13 +253,6 @@ fun DeletionDialog(dismiss: () -> Unit, confirm: () -> Unit) =
     AlertDialog(onDismissRequest = dismiss,
         title = { Text(text = "Supprimer un jeu de question") },
         text = { Text(text = "Voulez-vous supprimer ce jeu de question ?") },
-        confirmButton = { Button(onClick = confirm) { Text(text = "Ok") } })
-
-@Composable
-fun DeletionDBDialog(dismiss: () -> Unit, confirm: () -> Unit) =
-    AlertDialog(onDismissRequest = dismiss,
-        title = { Text(text = "Supprimer la base de données") },
-        text = { Text(text = "Voulez-vous supprimer la base de données ?") },
         confirmButton = { Button(onClick = confirm) { Text(text = "Ok") } })
 
 @Composable

@@ -10,6 +10,7 @@ import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -90,6 +91,7 @@ fun MainScreen() {
                     )
                 }
             }
+            composable(SETTINGS) { SettingsScreen(padding) }
         }
     }
 }
@@ -117,4 +119,13 @@ fun BottomBar(navController: NavHostController) =
                 contentDescription = LocalContext.current.getString(R.string.home_button)
             )
         })
+
+        BottomNavigationItem(selected = currentRoute == SETTINGS,
+            onClick = { navController.navigate(SETTINGS) { popUpTo(HOME) } },
+            icon = {
+                Icon(
+                    Icons.Default.Settings,
+                    LocalContext.current.getString(R.string.settings_button)
+                )
+            })
     }

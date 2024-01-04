@@ -73,7 +73,9 @@ fun PlayScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (question == null) {
-            Text("Ce set n'a aucune question", fontSize = 30.sp, textAlign = TextAlign.Center)
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                Text("Ce set n'a aucune question", fontSize = 30.sp)
+            }
         } else {
             Text(text = question!!.enonce, fontSize = 30.sp, textAlign = TextAlign.Center)
 

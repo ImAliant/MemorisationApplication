@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Memorisation</string>
     <string name="home_button">Page principale</string>
+    <string name="settings_button">Paramètres</string>
     <string name="main_button_create">Créer</string>
     <string name="main_button_modify">Modifier</string>
     <string name="main_button_import">Importer</string>

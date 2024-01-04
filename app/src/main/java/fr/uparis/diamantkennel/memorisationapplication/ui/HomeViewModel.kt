@@ -30,7 +30,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     var creation = mutableStateOf(false)
     var importation = mutableStateOf(false)
     var deletionSelect = mutableStateOf(false)
-    var deletionDB = mutableStateOf(false)
 
     var sujet = mutableStateOf("")
     var error = mutableStateOf<ErrorsAjout?>(null)
@@ -85,17 +84,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                     deletionSelect.value = true
                 }
             }
-
-            ActionHome.DELETION_DB -> {
-                deletionDB.value = true
-            }
-        }
-    }
-
-    fun deleteAll() {
-        deletionDB.value = false
-        viewModelScope.launch(Dispatchers.IO) {
-            dao.deleteTable()
         }
     }
 
@@ -120,10 +108,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     fun dismissDeleteOne() {
         deletionSelect.value = false
-    }
-
-    fun dismissDeleteAll() {
-        deletionDB.value = false
     }
 
     fun dismissImportation() {
