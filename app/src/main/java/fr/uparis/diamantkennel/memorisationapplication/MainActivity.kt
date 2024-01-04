@@ -75,7 +75,15 @@ fun MainScreen() {
                     )
                 }
             }
-            composable(PLAY) { PlayScreen(padding, navController) }
+            composable("$PLAY/{$PLAY_SET_ARG}") {
+                it.arguments?.getString(PLAY_SET_ARG)?.let { idSet ->
+                    PlayScreen(
+                        padding,
+                        navController,
+                        idSet.toInt()
+                    )
+                }
+            }
         }
     }
 }

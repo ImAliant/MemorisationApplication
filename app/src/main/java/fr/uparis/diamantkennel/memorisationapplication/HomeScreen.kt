@@ -114,7 +114,7 @@ fun HomeScreen(
 
         Button(
             enabled = currentSelection != null,
-            onClick = { navController.navigate(PLAY) }) {
+            onClick = { navController.navigate("$PLAY/${currentSelection?.idSet}") }) {
             Text(text = context.getString(R.string.main_button_start), fontSize = 30.sp)
         }
 
