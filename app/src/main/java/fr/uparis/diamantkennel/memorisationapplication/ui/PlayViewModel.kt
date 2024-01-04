@@ -7,12 +7,11 @@ import androidx.lifecycle.viewModelScope
 import fr.uparis.diamantkennel.memorisationapplication.MemoApplication
 import fr.uparis.diamantkennel.memorisationapplication.data.Question
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class PlayViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = (application as MemoApplication).database.memoDao()
-    private lateinit var questions: Flow<List<Question>>
+    private lateinit var questions: List<Question>
 
     var currentQuestion = mutableStateOf<Question?>(null)
     private var index = mutableStateOf(0)
@@ -26,22 +25,20 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
     fun updateQuestionList(setId: Int) {
         if (currentQuestion.value == null) {
             viewModelScope.launch(Dispatchers.IO) {
-                questions = dao.loadQuestions(setId)
-                updateQuestion()
+                dao.loadQuestions(setId).collect { questionList ->
+                    questions = questionList.shuffled()
+                    updateQuestion()
+                }
             }
         }
     }
 
     private fun updateQuestion() {
-        viewModelScope.launch {
-            questions.collect { questionList ->
-                if (index.value >= questionList.size) {
-                    /* Fin des questions */
-                    index.value = 0
-                }
-                currentQuestion.value = questionList[index.value]
-            }
+        if (index.value >= questions.size) {
+            /* Fin des questions */
+            index.value = 0
         }
+        currentQuestion.value = questions[index.value]
     }
 
     private fun reset() {
