@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 
 class PlayViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = (application as MemoApplication).database.memoDao()
-    private lateinit var questions: List<Question>
+    private var questions = mutableStateOf<List<Question>>(listOf())
 
     var currentQuestion = mutableStateOf<Question?>(null)
     private var index = mutableStateOf(0)
@@ -26,7 +26,7 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
         if (currentQuestion.value == null) {
             viewModelScope.launch(Dispatchers.IO) {
                 dao.loadQuestions(setId).collect { questionList ->
-                    questions = questionList.shuffled()
+                    questions.value = questionList.shuffled()
                     updateQuestion()
                 }
             }
@@ -34,11 +34,11 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun updateQuestion() {
-        if (index.value >= questions.size) {
+        if (index.value >= questions.value.size) {
             /* Fin des questions */
             index.value = 0
         }
-        currentQuestion.value = questions[index.value]
+        currentQuestion.value = questions.value[index.value]
     }
 
     private fun reset() {
