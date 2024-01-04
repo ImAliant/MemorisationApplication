@@ -24,7 +24,7 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updateQuestionList(setId: Int) {
         if (currentQuestion.value == null) {
-            viewModelScope.launch(Dispatchers.IO) {
+            viewModelScope.launch(Dispatchers.Main) {
                 dao.loadQuestions(setId).collect { questionList ->
                     questions.value = questionList.shuffled()
                     updateQuestion()
@@ -34,11 +34,15 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun updateQuestion() {
-        if (index.value >= questions.value.size) {
-            /* Fin des questions */
-            index.value = 0
+        if (questions.value.isEmpty()) {
+            currentQuestion.value = null
+        } else {
+            if (index.value >= questions.value.size) {
+                /* Fin des questions */
+                index.value = 0
+            }
+            currentQuestion.value = questions.value[index.value]
         }
-        currentQuestion.value = questions.value[index.value]
     }
 
     private fun reset() {
@@ -84,8 +88,13 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
 
     fun sbUpdate() {
         when (evaluatedAnswer.value!!) {
-            AnswerType.GOOD -> newQuestion()
-            AnswerType.BAD -> reset()
+            AnswerType.GOOD -> {
+                newQuestion()
+            }
+
+            AnswerType.BAD -> {
+                reset()
+            }
         }
     }
 

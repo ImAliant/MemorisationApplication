@@ -11,14 +11,14 @@
     - [x] Créer des questions
     - [x] Supprimer des questions
   - [x] Choisir / Sélection
-  - [ ] Commencer un jeu
+  - [x] Commencer un jeu
   - [ ] Reprendre la progression d'un jeu
   - [ ] Afficher les statistiques de tous les jeux
 - Dans un jeu
-  - [ ] Consulter la réponse à une question trop difficile
+  - [x] Consulter la réponse à une question trop difficile
   - [ ] Choisir le statut d'une question
-  - [ ] Modifier la question
-  - [ ] Supprimer la question
+  - [x] Modifier la question
+  - [x] Supprimer la question
   - [ ] Afficher les statistiques du jeu de question en cours
 - [ ] Notification
   - une fois par jour

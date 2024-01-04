@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
@@ -19,7 +20,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import fr.uparis.diamantkennel.memorisationapplication.ui.AnswerType
 import fr.uparis.diamantkennel.memorisationapplication.ui.PlayViewModel
 
@@ -27,6 +32,7 @@ import fr.uparis.diamantkennel.memorisationapplication.ui.PlayViewModel
 @Composable
 fun PlayScreen(
     padding: PaddingValues,
+    navController: NavController,
     snackbarHostState: SnackbarHostState,
     idSet: Int,
     model: PlayViewModel = viewModel()
@@ -35,9 +41,6 @@ fun PlayScreen(
     model.updateQuestionList(idSet)
 
     val question by model.currentQuestion
-    if (question == null) {
-        return
-    }
     val reponse by model.proposedAnswer
     val correction by model.evaluatedAnswer
     var giveup by model.showAnswer
@@ -56,12 +59,12 @@ fun PlayScreen(
         }
     }
 
-    if (giveup) {
+    if (giveup && question != null) {
         SolutionDialog(question!!.reponse, model::newQuestion)
     }
 
     // Update timer if needed
-    if (!model.isDelayElapsed()) {
+    if (!model.isDelayElapsed() && question != null) {
         model.updateTime(System.currentTimeMillis())
     }
 
@@ -69,26 +72,45 @@ fun PlayScreen(
         modifier = Modifier.padding(padding),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = question!!.enonce)
-        OutlinedTextField(
-            value = reponse,
-            label = { Text(text = "Réponse") },
-            onValueChange = model::updateAnswer
-        )
+        if (question == null) {
+            Text("Ce set n'a aucune question", fontSize = 30.sp, textAlign = TextAlign.Center)
+        } else {
+            Text(text = question!!.enonce, fontSize = 30.sp, textAlign = TextAlign.Center)
 
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            Button(
-                enabled = reponse.isNotBlank() && correction == null,
-                onClick = model::checkAnswer
+            Spacer(modifier = Modifier.padding(top = 20.dp))
+
+            OutlinedTextField(
+                value = reponse,
+                label = { Text(text = "Réponse") },
+                onValueChange = model::updateAnswer
+            )
+
+            Spacer(modifier = Modifier.padding(top = 20.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Text(text = "Répondre")
-            }
+                Button(
+                    enabled = reponse.isNotBlank() && correction == null,
+                    onClick = model::checkAnswer
+                ) {
+                    Text(text = "Répondre")
+                }
 
-            Button(
-                enabled = model.isDelayElapsed(),
-                onClick = { giveup = true }) {
-                Text(text = "Voir réponse")
+                Button(
+                    enabled = model.isDelayElapsed(),
+                    onClick = { giveup = true }) {
+                    Text(text = "Voir réponse")
+                }
             }
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Button(
+            onClick = { navController.navigate("$MODIFY_SET/$idSet") }) {
+            Text(text = "Modifier le set")
         }
     }
 }

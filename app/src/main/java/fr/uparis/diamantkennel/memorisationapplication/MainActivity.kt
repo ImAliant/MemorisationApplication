@@ -84,6 +84,7 @@ fun MainScreen() {
                 it.arguments?.getString(PLAY_SET_ARG)?.let { idSet ->
                     PlayScreen(
                         padding,
+                        navController,
                         snackbarHostState,
                         idSet.toInt()
                     )
