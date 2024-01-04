@@ -66,7 +66,7 @@ fun ModifySetScreen(
         modifier = Modifier.padding(padding),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        showList(model, questions, currentSelection)
+        ShowQuestionList(model, questions, currentSelection)
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
             Button(
@@ -93,19 +93,23 @@ fun ModifySetScreen(
 }
 
 @Composable
-fun showList(model: ModifySetViewModel, questions: List<Question>, currentSelection: Question?) {
+fun ShowQuestionList(
+    model: ModifySetViewModel,
+    questions: List<Question>,
+    currentSelection: Question?
+) {
     LazyColumn(
         Modifier.fillMaxHeight(0.6f)
     ) {
         itemsIndexed(questions) { index, item ->
-            listItem(index, item, currentSelection, model::updateSelection)
+            ListItem(index, item, currentSelection, model::updateSelection)
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun listItem(
+fun ListItem(
     index: Int,
     question: Question,
     currentSelection: Question?,

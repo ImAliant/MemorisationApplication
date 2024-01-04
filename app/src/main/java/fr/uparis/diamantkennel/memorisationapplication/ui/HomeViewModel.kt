@@ -28,7 +28,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     var selected = mutableStateOf<SetQuestions?>(null)
 
     var creation = mutableStateOf(false)
-    var modification = mutableStateOf(false)
     var importation = mutableStateOf(false)
     var deletionSelect = mutableStateOf(false)
     var deletionDB = mutableStateOf(false)
@@ -81,12 +80,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 importation.value = true
             }
 
-            ActionHome.MODIFIER -> {
-                if (selected.value != null) {
-                    modification.value = true
-                }
-            }
-
             ActionHome.DELETION_SELECT -> {
                 if (selected.value != null) {
                     deletionSelect.value = true
@@ -131,10 +124,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     fun dismissDeleteAll() {
         deletionDB.value = false
-    }
-
-    fun dismissModification() {
-        modification.value = false
     }
 
     fun dismissImportation() {

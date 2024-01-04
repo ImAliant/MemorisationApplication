@@ -200,14 +200,14 @@ fun ImportDialog(
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(ActionImport.FILE) }
 
     var lien by remember { mutableStateOf("") }
-    var ctx = LocalContext.current
+    val ctx = LocalContext.current
 
     val filePickerLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val uri = result.data?.data
-            lien = uri?.let { it.toString() } ?: lien
+            lien = uri?.toString() ?: lien
         }
     }
 
