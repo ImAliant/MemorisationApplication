@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,6 +41,8 @@ fun PlayScreen(
     // First update the list of questions
     model.updateQuestionList(idSet)
 
+    val context = LocalContext.current
+
     val question by model.currentQuestion
     val reponse by model.proposedAnswer
     val correction by model.evaluatedAnswer
@@ -51,8 +54,8 @@ fun PlayScreen(
             model.sbUpdate()
             snackbarHostState.showSnackbar(
                 when (correction!!) {
-                    AnswerType.GOOD -> "Bonnne réponse !"
-                    AnswerType.BAD -> "Mauvaise réponse !"
+                    AnswerType.GOOD -> context.getString(R.string.good_answer)
+                    AnswerType.BAD -> context.getString(R.string.bad_answer)
                 }, duration = SnackbarDuration.Short
             )
             model.resetAfterSb()
@@ -74,7 +77,7 @@ fun PlayScreen(
     ) {
         if (question == null) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                Text("Ce set n'a aucune question", fontSize = 30.sp)
+                Text(context.getString(R.string.no_question), fontSize = 30.sp)
             }
         } else {
             Text(text = question!!.enonce, fontSize = 30.sp, textAlign = TextAlign.Center)
@@ -83,7 +86,7 @@ fun PlayScreen(
 
             OutlinedTextField(
                 value = reponse,
-                label = { Text(text = "Réponse") },
+                label = { Text(text = context.getString(R.string.reponse)) },
                 onValueChange = model::updateAnswer
             )
 
@@ -97,13 +100,13 @@ fun PlayScreen(
                     enabled = reponse.isNotBlank() && correction == null,
                     onClick = model::checkAnswer
                 ) {
-                    Text(text = "Répondre")
+                    Text(text = context.getString(R.string.to_answer))
                 }
 
                 Button(
                     enabled = model.isDelayElapsed(),
                     onClick = { giveup = true }) {
-                    Text(text = "Voir réponse")
+                    Text(text = context.getString(R.string.see_answer))
                 }
             }
         }
@@ -112,7 +115,7 @@ fun PlayScreen(
 
         Button(
             onClick = { navController.navigate("$MODIFY_SET/$idSet") }) {
-            Text(text = "Modifier le set")
+            Text(text = context.getString(R.string.modify_set))
         }
     }
 }
@@ -120,8 +123,8 @@ fun PlayScreen(
 @Composable
 fun SolutionDialog(reponse: String, next: () -> Unit) =
     AlertDialog(onDismissRequest = next,
-        title = { Text(text = "Solution") },
+        title = { Text(text = LocalContext.current.getString(R.string.solution)) },
         text = { Text(text = reponse) },
         confirmButton = {
-            Button(onClick = next) { Text(text = "Ok") }
+            Button(onClick = next) { Text(text = LocalContext.current.getString(R.string.ok)) }
         })

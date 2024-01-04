@@ -72,13 +72,13 @@ fun ModifySetScreen(
             Button(
                 enabled = currentSelection != null,
                 onClick = { action = ActionModifySet.MODIFICATION }) {
-                Text(text = context.getString(R.string.modify_button_modify))
+                Text(text = context.getString(R.string.modify))
             }
 
             Spacer(modifier = Modifier.padding(2.dp))
 
             Button(onClick = { action = ActionModifySet.AJOUT }) {
-                Text(text = context.getString(R.string.modify_button_add))
+                Text(text = context.getString(R.string.add))
             }
 
             Spacer(modifier = Modifier.padding(2.dp))
@@ -149,6 +149,8 @@ fun AjoutModifDialog(
     confirm: (String, String) -> Unit,
     dismiss: () -> Unit
 ) {
+    val context = LocalContext.current
+
     var enonce by remember {
         mutableStateOf(
             if (type == ActionModifySet.MODIFICATION) {
@@ -172,9 +174,9 @@ fun AjoutModifDialog(
         title = {
             Text(
                 text = if (selection != null) {
-                    "Mettre à jour la question"
+                    context.getString(R.string.update_question)
                 } else {
-                    "Ajouter une question"
+                    context.getString(R.string.add_question)
                 }
             )
         },
@@ -184,14 +186,14 @@ fun AjoutModifDialog(
                     OutlinedTextField(
                         value = enonce,
                         onValueChange = { enonce = it },
-                        label = { Text(text = "Question") })
+                        label = { Text(text = context.getString(R.string.question)) })
                 }
 
                 Row {
                     OutlinedTextField(
                         value = reponse,
                         onValueChange = { reponse = it },
-                        label = { Text(text = "Réponse") })
+                        label = { Text(text = context.getString(R.string.reponse)) })
                 }
             }
         },
@@ -199,18 +201,18 @@ fun AjoutModifDialog(
             Button(onClick = {
                 confirm(enonce, reponse)
                 dismiss()
-            }) { Text(text = "Ok") }
+            }) { Text(text = context.getString(R.string.ok)) }
         })
 }
 
 @Composable
 fun RemoveDialog(confirm: () -> Unit, dismiss: () -> Unit) =
     AlertDialog(onDismissRequest = dismiss,
-        title = { Text(text = "Supprimer la question") },
-        text = { Text(text = "Voulez-vous supprimer la question ?") },
+        title = { Text(text = LocalContext.current.getString(R.string.delete_question)) },
+        text = { Text(text = LocalContext.current.getString(R.string.delete_question_desc)) },
         confirmButton = {
             Button(onClick = {
                 confirm()
                 dismiss()
-            }) { Text(text = "Ok") }
+            }) { Text(text = LocalContext.current.getString(R.string.ok)) }
         })

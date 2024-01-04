@@ -135,13 +135,13 @@ private fun ActionRow(context: Context, model: HomeViewModel, navController: Nav
         Button(
             enabled = selection != null,
             onClick = { navController.navigate("$MODIFY_SET/${selection?.idSet}") }) {
-            Text(text = context.getString(R.string.main_button_modify))
+            Text(text = context.getString(R.string.modify))
         }
 
         Spacer(modifier = Modifier.padding(2.dp))
 
         Button(onClick = { model.doAction(ActionHome.IMPORTATION) }) {
-            Text(text = context.getString(R.string.main_button_import))
+            Text(text = context.getString(R.string.importation))
         }
     }
 }
@@ -151,17 +151,25 @@ private fun ActionRow(context: Context, model: HomeViewModel, navController: Nav
 fun CreationDialog(
     dismiss: () -> Unit, model: HomeViewModel = viewModel()
 ) {
+    val context = LocalContext.current
     val sujet by model.sujet
 
-    AlertDialog(onDismissRequest = dismiss, title = { Text(text = "Créer un sujet") }, text = {
-        OutlinedTextField(
-            sujet, label = { Text("Nouveau sujet") }, onValueChange = model::onSujetChange
-        )
-    }, confirmButton = {
-        Button(onClick = model::addSet, content = { Text("Ajouter") })
-    }, dismissButton = {
-        Button(onClick = dismiss, content = { Text("Annuler") })
-    })
+    AlertDialog(
+        onDismissRequest = dismiss,
+        title = { Text(text = context.getString(R.string.create_subject)) },
+        text = {
+            OutlinedTextField(
+                sujet,
+                label = { Text(context.getString(R.string.new_subject)) },
+                onValueChange = model::onSujetChange
+            )
+        },
+        confirmButton = {
+            Button(onClick = model::addSet, content = { Text(context.getString(R.string.add)) })
+        },
+        dismissButton = {
+            Button(onClick = dismiss, content = { Text(context.getString(R.string.cancel)) })
+        })
 }
 
 @OptIn(ExperimentalMaterial3Api::class, DelicateCoroutinesApi::class)
@@ -171,6 +179,7 @@ fun ImportDialog(
 ) {
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(ActionImport.FILE) }
 
+    val context = LocalContext.current
     var lien by remember { mutableStateOf("") }
     val ctx = LocalContext.current
 
@@ -184,7 +193,7 @@ fun ImportDialog(
     }
 
     AlertDialog(onDismissRequest = dismiss,
-        title = { Text(text = "Importer un jeu de question") },
+        title = { Text(text = context.getString(R.string.import_set_qestions)) },
         text = {
             Column {
                 Column(Modifier.selectableGroup()) {
@@ -218,7 +227,7 @@ fun ImportDialog(
                                         )
                                     }) {
                                     Text(
-                                        text = "Explorateur",
+                                        text = context.getString(R.string.explorer),
                                         style = MaterialTheme.typography.labelSmall
                                     )
                                 }
@@ -230,30 +239,30 @@ fun ImportDialog(
                 OutlinedTextField(enabled = selectedOption == ActionImport.INTERNET,
                     value = lien,
                     onValueChange = { newTextValue -> lien = newTextValue },
-                    label = { Text(text = "Lien") })
+                    label = { Text(text = context.getString(R.string.link)) })
             }
         },
         confirmButton = {
             Button(onClick = { GlobalScope.launch { model.import(ctx, lien) } },
-                content = { Text("Importer") })
+                content = { Text(context.getString(R.string.importation)) })
         },
         dismissButton = {
-            Button(onClick = dismiss, content = { Text("Annuler") })
+            Button(onClick = dismiss, content = { Text(context.getString(R.string.cancel)) })
         })
 }
 
 @Composable
 fun ErrorDialog(errMsg: String, dismiss: () -> Unit) = AlertDialog(onDismissRequest = dismiss,
-    title = { Text(text = "Erreur") },
+    title = { Text(text = LocalContext.current.getString(R.string.error)) },
     text = { Text(text = errMsg) },
-    confirmButton = { Button(onClick = dismiss) { Text(text = "Ok") } })
+    confirmButton = { Button(onClick = dismiss) { Text(text = LocalContext.current.getString(R.string.ok)) } })
 
 @Composable
 fun DeletionDialog(dismiss: () -> Unit, confirm: () -> Unit) =
     AlertDialog(onDismissRequest = dismiss,
-        title = { Text(text = "Supprimer un jeu de question") },
-        text = { Text(text = "Voulez-vous supprimer ce jeu de question ?") },
-        confirmButton = { Button(onClick = confirm) { Text(text = "Ok") } })
+        title = { Text(text = LocalContext.current.getString(R.string.delete_set_questions)) },
+        text = { Text(text = LocalContext.current.getString(R.string.delete_set_qestions_desc)) },
+        confirmButton = { Button(onClick = confirm) { Text(text = LocalContext.current.getString(R.string.ok)) } })
 
 @Composable
 fun ShowList(

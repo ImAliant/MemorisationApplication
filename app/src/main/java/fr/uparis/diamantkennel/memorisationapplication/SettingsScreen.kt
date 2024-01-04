@@ -49,9 +49,9 @@ fun SettingsScreen(padding: PaddingValues, model: SettingsViewModel = viewModel(
 @Composable
 fun DeletionDBDialog(confirm: () -> Unit, dismiss: () -> Unit) =
     AlertDialog(onDismissRequest = dismiss,
-        title = { Text(text = "Supprimer la base de données") },
-        text = { Text(text = "Voulez-vous supprimer la base de données ?") },
+        title = { Text(text = LocalContext.current.getString(R.string.delete_db)) },
+        text = { Text(text = LocalContext.current.getString(R.string.delete_db_desc)) },
         confirmButton = {
-            Button(onClick = confirm) { Text(text = "Oui") }
+            Button(onClick = confirm) { Text(text = LocalContext.current.getString(R.string.yes)) }
         },
-        dismissButton = { Button(onClick = dismiss) { Text(text = "Non") } })
+        dismissButton = { Button(onClick = dismiss) { Text(text = LocalContext.current.getString(R.string.no)) } })
