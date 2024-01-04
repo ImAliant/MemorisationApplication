@@ -46,7 +46,7 @@
     <string name="stats_games_done">Set terminés</string>
     <string name="stats_good_answer">Réponses bonnes</string>
     <string name="stats_bad_answer">Réponses mauvaises</string>
-    <string name="stats_winrate">Taux de victoire</string>
+    <string name="stats_winrate">Taux de bonne réponse</string>
     <string name="clean_stat_button">Réinitialiser stats</string>
     <string name="clean_stat">Réinitialiser les statistiques</string>
     <string name="clean_stat_desc">Voulez-vous réinitialiser les statistiques ?</string>
