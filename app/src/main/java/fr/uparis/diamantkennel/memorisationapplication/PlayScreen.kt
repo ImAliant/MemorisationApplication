@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
@@ -15,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -39,6 +41,7 @@ fun PlayScreen(
     }
     val reponse by model.proposedAnswer
     val correction by model.evaluatedAnswer
+    var giveup by model.showAnswer
 
     val cpt by model.compteurSb
     if (correction != null) {
@@ -52,6 +55,15 @@ fun PlayScreen(
             )
             model.resetAfterSb()
         }
+    }
+
+    if (giveup) {
+        SolutionDialog(question!!.reponse, model::newQuestion)
+    }
+
+    // Update timer if needed
+    if (!model.isDelayElapsed()) {
+        model.updateTime(System.currentTimeMillis())
     }
 
     Column(
@@ -74,10 +86,19 @@ fun PlayScreen(
             }
 
             Button(
-                enabled = false /* TODO: s'activer au bout de 3 secondes */,
-                onClick = { /*TODO*/ }) {
+                enabled = model.isDelayElapsed(),
+                onClick = { giveup = true }) {
                 Text(text = "Voir réponse")
             }
         }
     }
 }
+
+@Composable
+fun SolutionDialog(reponse: String, next: () -> Unit) =
+    AlertDialog(onDismissRequest = next,
+        title = { Text(text = "Solution") },
+        text = { Text(text = reponse) },
+        confirmButton = {
+            Button(onClick = next) { Text(text = "Ok") }
+        })

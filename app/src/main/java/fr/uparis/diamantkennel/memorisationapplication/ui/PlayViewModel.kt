@@ -18,11 +18,12 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
 
     var currentQuestion = mutableStateOf<Question?>(null)
     private var index = mutableStateOf(0)
-
     var proposedAnswer = mutableStateOf("")
     var evaluatedAnswer = mutableStateOf<AnswerType?>(null)
-
     val compteurSb = mutableStateOf(0)
+    private var timestampQuestion = mutableStateOf(System.currentTimeMillis())
+    private var currentTime = mutableStateOf(System.currentTimeMillis())
+    var showAnswer = mutableStateOf(false)
 
     fun updateQuestionList(setId: Int) {
         if (setId != initialId) {
@@ -47,6 +48,7 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun reset() {
         proposedAnswer.value = ""
+        showAnswer.value = false
     }
 
     fun resetAfterSb() {
@@ -54,10 +56,13 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
         compteurSb.value++
     }
 
-    private fun newQuestion() {
+    fun newQuestion() {
         reset()
         index.value++
         updateQuestion()
+
+        // reset le timer uniquement en changeant de question
+        timestampQuestion.value = System.currentTimeMillis()
     }
 
     fun updateAnswer(text: String) {
@@ -88,4 +93,11 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
             AnswerType.BAD -> reset()
         }
     }
+
+    fun isDelayElapsed() = currentTime.value - timestampQuestion.value >= 3000
+
+    fun updateTime(time: Long) {
+        currentTime.value = time
+    }
+
 }
