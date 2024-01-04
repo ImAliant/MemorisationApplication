@@ -31,8 +31,7 @@ fun PlayScreen(
     idSet: Int,
     model: PlayViewModel = viewModel()
 ) {
-    // First update the list and set ID
-    model.setId.value = idSet
+    // First update the list
     model.updateQuestionList(idSet)
 
     val question by model.currentQuestion
