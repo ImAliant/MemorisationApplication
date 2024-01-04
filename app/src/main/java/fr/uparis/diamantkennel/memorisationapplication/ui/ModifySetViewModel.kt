@@ -11,15 +11,16 @@ import kotlinx.coroutines.launch
 
 class ModifySetViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = (application as MemoApplication).database.memoDao()
+    private val initialId = -1 // invalid ID, mean that we don't have the ID yet
 
-    var setId = mutableStateOf(-1)
+    var setId = mutableStateOf(initialId)
     var questions = dao.loadQuestions(setId.value)
     var selection = mutableStateOf<Question?>(null)
     var action = mutableStateOf(ActionModifySet.AUCUN)
 
     fun updateQuestionList(setId: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            questions = dao.loadQuestions(setId)
+        if (setId != initialId) {
+            viewModelScope.launch(Dispatchers.IO) { questions = dao.loadQuestions(setId) }
         }
     }
 
