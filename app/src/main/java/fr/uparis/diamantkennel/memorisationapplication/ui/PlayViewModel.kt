@@ -2,16 +2,29 @@ package fr.uparis.diamantkennel.memorisationapplication.ui
 
 import android.app.Application
 import androidx.compose.runtime.mutableStateOf
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import fr.uparis.diamantkennel.memorisationapplication.MemoApplication
+import fr.uparis.diamantkennel.memorisationapplication.STATS_TOTAL_BAD
+import fr.uparis.diamantkennel.memorisationapplication.STATS_TOTAL_DONE
+import fr.uparis.diamantkennel.memorisationapplication.STATS_TOTAL_GOOD
+import fr.uparis.diamantkennel.memorisationapplication.STATS_TOTAL_TRIED
 import fr.uparis.diamantkennel.memorisationapplication.data.Question
+import fr.uparis.diamantkennel.memorisationapplication.dataStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class PlayViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = (application as MemoApplication).database.memoDao()
     private var questions = mutableStateOf<List<Question>>(listOf())
+
+    private val stats = application.dataStore
+    private val statsKeyTotal = intPreferencesKey(STATS_TOTAL_TRIED)
+    private val statsKeyTotalDone = intPreferencesKey(STATS_TOTAL_DONE)
+    private val statsKeyTotalGood = intPreferencesKey(STATS_TOTAL_GOOD)
+    private val statsKeyTotalBad = intPreferencesKey(STATS_TOTAL_BAD)
 
     var currentQuestion = mutableStateOf<Question?>(null)
     private var index = mutableStateOf(0)
@@ -28,6 +41,9 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
             viewModelScope.launch(Dispatchers.Main) {
                 dao.loadQuestions(setId).collect { questionList ->
                     questions.value = questionList.shuffled()
+                    if (questions.value.isNotEmpty()) {
+                        stats.edit { it[statsKeyTotal] = (it[statsKeyTotal] ?: 0) + 1 }
+                    }
                     updateQuestion()
                 }
             }
@@ -41,6 +57,11 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
             if (index.value >= questions.value.size) {
                 /* Fin des questions */
                 end.value = true
+                viewModelScope.launch {
+                    stats.edit {
+                        it[statsKeyTotalDone] = (it[statsKeyTotalDone] ?: 0) + 1
+                    }
+                }
             } else {
                 currentQuestion.value = questions.value[index.value]
             }
@@ -81,7 +102,7 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
 
     fun checkAnswer() {
         val probaReponse = calcSimilarite(currentQuestion.value!!.reponse, proposedAnswer.value)
-        if (probaReponse >= .60f) {
+        if (probaReponse >= .70f) {
             evaluatedAnswer.value = AnswerType.GOOD
         } else {
             evaluatedAnswer.value = AnswerType.BAD
@@ -89,17 +110,23 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun sbUpdate() {
-        /* TODO: Statistiques à sauvegarder :
-         * - temps de réponse
-         * - taux réussite (ratio bonne/mauvaise réponse
-         *
-         * Tout ça va être récupérer depuis ici */
+        /* TODO: Statistiques à sauvegarder : temps de réponse */
         when (evaluatedAnswer.value!!) {
             AnswerType.GOOD -> {
+                viewModelScope.launch {
+                    stats.edit {
+                        it[statsKeyTotalGood] = (it[statsKeyTotalGood] ?: 0) + 1
+                    }
+                }
                 newQuestion()
             }
 
             AnswerType.BAD -> {
+                viewModelScope.launch {
+                    stats.edit {
+                        it[statsKeyTotalBad] = (it[statsKeyTotalBad] ?: 0) + 1
+                    }
+                }
                 reset()
             }
         }

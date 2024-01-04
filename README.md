@@ -2,27 +2,27 @@
 
 ## A faire ?
 
-- Jeu de question
+- [x] Jeu de question
   - [x] Ajouter / Importer
     - [x] Fichier local
     - [x] Lien HTTP
   - [x] Supprimer
-  - Modifier
+  - [x] Modifier
     - [x] Créer des questions
     - [x] Supprimer des questions
   - [x] Choisir / Sélection
   - [x] Commencer un jeu
   - [ ] Reprendre la progression d'un jeu
-  - [ ] Afficher les statistiques de tous les jeux
-- Dans un jeu
+  - [x] Afficher les statistiques de tous les jeux
+- [x] Dans un jeu
   - [x] Consulter la réponse à une question trop difficile
   - [ ] Choisir le statut d'une question
   - [x] Modifier la question
   - [x] Supprimer la question
   - [ ] Afficher les statistiques du jeu de question en cours
 - [ ] Notification
-  - une fois par jour
-- [ ] Paramètres
+  - [ ] une fois par jour
+- [x] Paramètres
   - [ ] Temps de réponse aux questions
   - [ ] Thème
   - [ ] Taille police
