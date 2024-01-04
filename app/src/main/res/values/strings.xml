@@ -39,4 +39,6 @@
     <string name="delete_db_desc">Voulez-vous supprimer la base de données ?</string>
     <string name="yes">Oui</string>
     <string name="no">Non</string>
+    <string name="bravo">Bravo</string>
+    <string name="set_ended">Le set de questions est terminé !</string>
 </resources>

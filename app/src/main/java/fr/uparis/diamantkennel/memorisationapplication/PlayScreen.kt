@@ -47,6 +47,7 @@ fun PlayScreen(
     val reponse by model.proposedAnswer
     val correction by model.evaluatedAnswer
     var giveup by model.showAnswer
+    val gameEnded by model.end
 
     val cpt by model.compteurSb
     if (correction != null) {
@@ -60,6 +61,10 @@ fun PlayScreen(
             )
             model.resetAfterSb()
         }
+    }
+
+    if (gameEnded) {
+        EndDialog { navController.navigate(HOME) }
     }
 
     if (giveup && question != null) {
@@ -125,6 +130,16 @@ fun SolutionDialog(reponse: String, next: () -> Unit) =
     AlertDialog(onDismissRequest = next,
         title = { Text(text = LocalContext.current.getString(R.string.solution)) },
         text = { Text(text = reponse) },
+        confirmButton = {
+            Button(onClick = next) { Text(text = LocalContext.current.getString(R.string.ok)) }
+        })
+
+@Composable
+fun EndDialog(next: () -> Unit) =
+    AlertDialog(
+        onDismissRequest = next,
+        title = { Text(text = LocalContext.current.getString(R.string.bravo)) },
+        text = { Text(text = LocalContext.current.getString(R.string.set_ended)) },
         confirmButton = {
             Button(onClick = next) { Text(text = LocalContext.current.getString(R.string.ok)) }
         })

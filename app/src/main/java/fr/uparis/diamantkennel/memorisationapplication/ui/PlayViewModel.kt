@@ -21,6 +21,7 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
     private var timestampQuestion = mutableStateOf(System.currentTimeMillis())
     private var currentTime = mutableStateOf(System.currentTimeMillis())
     var showAnswer = mutableStateOf(false)
+    val end = mutableStateOf(false)
 
     fun updateQuestionList(setId: Int) {
         if (currentQuestion.value == null) {
@@ -39,9 +40,10 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
         } else {
             if (index.value >= questions.value.size) {
                 /* Fin des questions */
-                index.value = 0
+                end.value = true
+            } else {
+                currentQuestion.value = questions.value[index.value]
             }
-            currentQuestion.value = questions.value[index.value]
         }
     }
 
