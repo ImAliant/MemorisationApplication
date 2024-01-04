@@ -1,6 +1,5 @@
 package fr.uparis.diamantkennel.memorisationapplication
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,14 +9,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import fr.uparis.diamantkennel.memorisationapplication.ui.AnswerType
 import fr.uparis.diamantkennel.memorisationapplication.ui.PlayViewModel
 
@@ -25,15 +25,13 @@ import fr.uparis.diamantkennel.memorisationapplication.ui.PlayViewModel
 @Composable
 fun PlayScreen(
     padding: PaddingValues,
-    navController: NavController,
+    snackbarHostState: SnackbarHostState,
     idSet: Int,
     model: PlayViewModel = viewModel()
 ) {
     // First update the list and set ID
     model.setId.value = idSet
     model.updateQuestionList(idSet)
-
-    val context = LocalContext.current
 
     val question by model.currentQuestion
     if (question == null) {
@@ -42,14 +40,18 @@ fun PlayScreen(
     val reponse by model.proposedAnswer
     val correction by model.evaluatedAnswer
 
-    if (correction == AnswerType.GOOD) {
-        Log.d("1312", "Bonne réponse !")
-        model.newQuestion()
-    }
-
-    if (correction == AnswerType.BAD) {
-        Log.d("1312", "Mauvaise réponse !")
-        model.reset()
+    val cpt by model.compteurSb
+    if (correction != null) {
+        LaunchedEffect(cpt) {
+            model.sbUpdate()
+            snackbarHostState.showSnackbar(
+                when (correction!!) {
+                    AnswerType.GOOD -> "Bonnne réponse !"
+                    AnswerType.BAD -> "Mauvaise réponse !"
+                }, duration = SnackbarDuration.Short
+            )
+            model.resetAfterSb()
+        }
     }
 
     Column(
@@ -64,7 +66,10 @@ fun PlayScreen(
         )
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            Button(onClick = model::checkAnswer) {
+            Button(
+                enabled = reponse.isNotBlank() && correction == null,
+                onClick = model::checkAnswer
+            ) {
                 Text(text = "Répondre")
             }
 

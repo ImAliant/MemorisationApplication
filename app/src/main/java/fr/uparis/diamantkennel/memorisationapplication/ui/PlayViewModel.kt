@@ -20,7 +20,9 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
     private var index = mutableStateOf(0)
 
     var proposedAnswer = mutableStateOf("")
-    var evaluatedAnswer = mutableStateOf(AnswerType.NONE)
+    var evaluatedAnswer = mutableStateOf<AnswerType?>(null)
+
+    val compteurSb = mutableStateOf(0)
 
     fun updateQuestionList(setId: Int) {
         if (setId != initialId) {
@@ -32,9 +34,10 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun updateQuestion() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             questions.collect { questionList ->
                 if (index.value >= questionList.size) {
+                    /* Fin des questions */
                     index.value = 0
                 }
                 currentQuestion.value = questionList[index.value]
@@ -42,14 +45,18 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun reset() {
+    private fun reset() {
         proposedAnswer.value = ""
-        evaluatedAnswer.value = AnswerType.NONE
     }
 
-    fun newQuestion() {
+    fun resetAfterSb() {
+        evaluatedAnswer.value = null
+        compteurSb.value++
+    }
+
+    private fun newQuestion() {
         reset()
-        index.value += 1
+        index.value++
         updateQuestion()
     }
 
@@ -57,6 +64,8 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
         proposedAnswer.value = text
     }
 
+    /** Permet de calculer la similarité entre 2 string.
+     *  Renvoie un pourcentage entre 0 et 1. */
     private fun calcSimilarite(str1: String, str2: String): Float {
         val set1 = str1.lowercase().toSet()
         val set2 = str2.lowercase().toSet()
@@ -73,5 +82,10 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-
+    fun sbUpdate() {
+        when (evaluatedAnswer.value!!) {
+            AnswerType.GOOD -> newQuestion()
+            AnswerType.BAD -> reset()
+        }
+    }
 }
