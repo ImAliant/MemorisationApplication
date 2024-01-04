@@ -87,6 +87,11 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun sbUpdate() {
+        /* TODO: Statistiques à sauvegarder :
+         * - temps de réponse
+         * - taux réussite (ratio bonne/mauvaise réponse
+         *
+         * Tout ça va être récupérer depuis ici */
         when (evaluatedAnswer.value!!) {
             AnswerType.GOOD -> {
                 newQuestion()
