@@ -4,22 +4,33 @@ import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.mutableStateOf
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkManager
+import fr.uparis.diamantkennel.memorisationapplication.ENABLED
+import fr.uparis.diamantkennel.memorisationapplication.HOUR
+import fr.uparis.diamantkennel.memorisationapplication.MINUTE
 import fr.uparis.diamantkennel.memorisationapplication.MemoApplication
+import fr.uparis.diamantkennel.memorisationapplication.RappelWorker
 import fr.uparis.diamantkennel.memorisationapplication.STATS_TOTAL_BAD
 import fr.uparis.diamantkennel.memorisationapplication.STATS_TOTAL_DONE
 import fr.uparis.diamantkennel.memorisationapplication.STATS_TOTAL_GOOD
 import fr.uparis.diamantkennel.memorisationapplication.STATS_TOTAL_TRIED
+import fr.uparis.diamantkennel.memorisationapplication.TimeConfig
 import fr.uparis.diamantkennel.memorisationapplication.dataStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.util.Calendar
+import java.util.concurrent.TimeUnit
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = (application as MemoApplication).database.memoDao()
@@ -29,6 +40,10 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val statsKeyTotalDone = intPreferencesKey(STATS_TOTAL_DONE)
     private val statsKeyTotalGood = intPreferencesKey(STATS_TOTAL_GOOD)
     private val statsKeyTotalBad = intPreferencesKey(STATS_TOTAL_BAD)
+
+    private val KEY_E = booleanPreferencesKey(ENABLED)
+    private val KEY_H = intPreferencesKey(HOUR)
+    private val KEY_M = intPreferencesKey(MINUTE)
 
     val statTotal = stats.data.map { it[statsKeyTotal] ?: 0 }
     val statTotalDone = stats.data.map { it[statsKeyTotalDone] ?: 0 }
@@ -76,5 +91,46 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun checkPermission(context: Context) {
         gavePermissionNow.value =
             context.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun save(config: TimeConfig) {
+        viewModelScope.launch {
+            stats.edit {
+                it[KEY_E] = config.enabled
+                it[KEY_H] = config.hour
+                it[KEY_M] = config.minute
+            }
+        }
+    }
+
+    val prefConfig = stats.data.map {
+        TimeConfig(
+            it[KEY_E] ?: false,
+            it[KEY_H] ?: 8,
+            it[KEY_M] ?: 0
+        )
+    }
+
+    fun schedule(config: TimeConfig, context: Context) {
+        val wm = WorkManager.getInstance(context)
+        wm.cancelAllWork()
+        if (config.enabled)
+            wm.enqueue(request(config.hour, config.minute))
+    }
+
+    private fun request(h: Int, m: Int): PeriodicWorkRequest {
+        val now = Calendar.getInstance()
+        val target = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, h)
+            set(Calendar.MINUTE, m)
+        }
+        if (target.before(now))
+            target.add(Calendar.DAY_OF_YEAR, 1)
+        val delta = target.timeInMillis - now.timeInMillis
+        val request = PeriodicWorkRequest.Builder(RappelWorker::class.java, 1, TimeUnit.DAYS)
+            .setInitialDelay(delta, TimeUnit.MILLISECONDS)
+            .build()
+        Log.d("Periodic", "request: $request")
+        return request
     }
 }

@@ -1,6 +1,7 @@
 package fr.uparis.diamantkennel.memorisationapplication
 
 import android.os.Build
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -15,10 +16,17 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TimeInput
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,8 +37,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.uparis.diamantkennel.memorisationapplication.ui.SettingsViewModel
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(padding: PaddingValues, model: SettingsViewModel = viewModel()) {
     val context = LocalContext.current
@@ -38,6 +49,16 @@ fun SettingsScreen(padding: PaddingValues, model: SettingsViewModel = viewModel(
     var deletionDBRequest by model.deletionDB
     var cleanStatRequest by model.deletionStat
     var permissionNotif by model.gavePermissionNow
+
+    val prefConfig = runBlocking { model.prefConfig.first() }
+
+    val state = rememberTimePickerState(
+        initialHour = prefConfig.hour,
+        initialMinute = prefConfig.minute,
+        is24Hour = true
+    )
+    var enabled by remember { mutableStateOf(prefConfig.enabled) }
+
     model.checkPermission(context)
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -93,6 +114,25 @@ fun SettingsScreen(padding: PaddingValues, model: SettingsViewModel = viewModel(
             }
         ) {
             Text(text = context.getString(R.string.permission_button))
+        }
+
+        Column {
+            Row {
+                TimeInput(state = state)
+                Switch(enabled, { enabled = it })
+            }
+            FloatingActionButton(onClick = {
+                val newConfig = TimeConfig(
+                    enabled,
+                    state.hour,
+                    state.minute
+                )
+                Log.d("Periodic", "config=$newConfig")
+                model.save(newConfig)
+                model.schedule(newConfig, context)
+            }) {
+                Text("On y va!")
+            }
         }
     }
 }
