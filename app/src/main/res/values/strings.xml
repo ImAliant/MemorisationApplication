@@ -21,7 +21,7 @@
     <string name="error">Erreur</string>
     <string name="delete_set_questions">Supprimer un jeu de question</string>
     <string name="delete_set_qestions_desc">Voulez-vous supprimer ce jeu de question ?</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
     <string name="update_question">Mettre à jour la question</string>
     <string name="add_question">Ajouter une question</string>
     <string name="question">Question</string>
@@ -55,4 +55,7 @@
     <string name="notif_channel_desc">Notifications de rappel</string>
     <string name="notif_reminder_title">Rappel</string>
     <string name="notif_reminder_content">Il est temps de réviser !</string>
+    <string name="time_notif_button">Modifier heure de rappel</string>
+    <string name="time_notif">Choix heure de rappel</string>
+    <string name="time_notif_desc">Choisissez l\'heure à laquelle vous souhaitez être notifié</string>
 </resources>

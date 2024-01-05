@@ -1,7 +1,6 @@
 package fr.uparis.diamantkennel.memorisationapplication
 
 import android.os.Build
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -11,22 +10,23 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TimeInput
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerLayoutType
+import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.uparis.diamantkennel.memorisationapplication.ui.SettingsViewModel
 import kotlinx.coroutines.flow.first
@@ -48,6 +49,7 @@ fun SettingsScreen(padding: PaddingValues, model: SettingsViewModel = viewModel(
 
     var deletionDBRequest by model.deletionDB
     var cleanStatRequest by model.deletionStat
+    var choiceTimeNotifRequest by model.notif
     var permissionNotif by model.gavePermissionNow
 
     val prefConfig = runBlocking { model.prefConfig.first() }
@@ -57,8 +59,6 @@ fun SettingsScreen(padding: PaddingValues, model: SettingsViewModel = viewModel(
         initialMinute = prefConfig.minute,
         is24Hour = true
     )
-    var enabled by remember { mutableStateOf(prefConfig.enabled) }
-
     model.checkPermission(context)
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -75,6 +75,15 @@ fun SettingsScreen(padding: PaddingValues, model: SettingsViewModel = viewModel(
 
     if (cleanStatRequest) {
         CleanStatDialog(model::cleanStats) { cleanStatRequest = false }
+    }
+
+    if (choiceTimeNotifRequest)
+    {
+        ChoiceTimeNotifDialog(
+            { (model::choiceTimeNotif)(state, context) },
+            { choiceTimeNotifRequest = false },
+            state
+        )
     }
 
     Column(
@@ -107,31 +116,31 @@ fun SettingsScreen(padding: PaddingValues, model: SettingsViewModel = viewModel(
             }
         }
 
-        Button(
-            enabled = !permissionNotif,
-            onClick = {
-                model.requestNotificationPermission(permissionLauncher)
-            }
-        ) {
-            Text(text = context.getString(R.string.permission_button))
-        }
+        Spacer(modifier = Modifier.padding(top = 10.dp))
+        Divider(color = Color.Gray)
+        Spacer(modifier = Modifier.padding(top = 10.dp))
 
-        Column {
-            Row {
-                TimeInput(state = state)
-                Switch(enabled, { enabled = it })
+        Text(text = "Notifications", fontSize = 30.sp)
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Button(
+                enabled = !permissionNotif,
+                onClick = {
+                    model.requestNotificationPermission(permissionLauncher)
+                }
+            ) {
+                Text(text = context.getString(R.string.permission_button))
             }
-            FloatingActionButton(onClick = {
-                val newConfig = TimeConfig(
-                    enabled,
-                    state.hour,
-                    state.minute
-                )
-                Log.d("Periodic", "config=$newConfig")
-                model.save(newConfig)
-                model.schedule(newConfig, context)
-            }) {
-                Text("On y va!")
+            Button(
+                enabled = permissionNotif,
+                onClick = {
+                    choiceTimeNotifRequest = true
+                }
+            ) {
+                Text(text = context.getString(R.string.time_notif_button))
             }
         }
     }
@@ -184,3 +193,41 @@ fun CleanStatDialog(confirm: () -> Unit, dismiss: () -> Unit) =
             Button(onClick = confirm) { Text(text = LocalContext.current.getString(R.string.yes)) }
         },
         dismissButton = { Button(onClick = dismiss) { Text(text = LocalContext.current.getString(R.string.no)) } })
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ChoiceTimeNotifDialog(confirm: () -> Unit, dismiss: () -> Unit, state: TimePickerState) {
+    Dialog(onDismissRequest = { dismiss() }) {
+        Card(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
+                .height(550.dp),
+            shape = RoundedCornerShape(16.dp),
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = LocalContext.current.getString(R.string.time_notif), fontSize = 30.sp)
+                Text(text = LocalContext.current.getString(R.string.time_notif_desc))
+
+                Spacer(modifier = Modifier.padding(top = 10.dp))
+                TimePicker(state = state, layoutType = TimePickerLayoutType.Vertical)
+                Spacer(modifier = Modifier.padding(top = 10.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Button(onClick = dismiss) {
+                        Text(text = LocalContext.current.getString(R.string.no))
+                    }
+                    Button(onClick = confirm) {
+                        Text(text = LocalContext.current.getString(R.string.yes))
+                    }
+                }
+            }
+        }
+    }
+}

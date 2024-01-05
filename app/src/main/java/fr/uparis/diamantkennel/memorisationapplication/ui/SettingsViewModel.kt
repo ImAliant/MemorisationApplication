@@ -7,15 +7,15 @@ import android.os.Build
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.RequiresApi
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TimePickerState
 import androidx.compose.runtime.mutableStateOf
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
-import fr.uparis.diamantkennel.memorisationapplication.ENABLED
 import fr.uparis.diamantkennel.memorisationapplication.HOUR
 import fr.uparis.diamantkennel.memorisationapplication.MINUTE
 import fr.uparis.diamantkennel.memorisationapplication.MemoApplication
@@ -41,9 +41,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val statsKeyTotalGood = intPreferencesKey(STATS_TOTAL_GOOD)
     private val statsKeyTotalBad = intPreferencesKey(STATS_TOTAL_BAD)
 
-    private val KEY_E = booleanPreferencesKey(ENABLED)
-    private val KEY_H = intPreferencesKey(HOUR)
-    private val KEY_M = intPreferencesKey(MINUTE)
+    private val notifH = intPreferencesKey(HOUR)
+    private val notifM = intPreferencesKey(MINUTE)
 
     val statTotal = stats.data.map { it[statsKeyTotal] ?: 0 }
     val statTotalDone = stats.data.map { it[statsKeyTotalDone] ?: 0 }
@@ -52,6 +51,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     val deletionDB = mutableStateOf(false)
     val deletionStat = mutableStateOf(false)
+    var notif = mutableStateOf(false)
 
     val gavePermissionNow = mutableStateOf(false)
 
@@ -72,6 +72,18 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 it[statsKeyTotalBad] = 0
             }
         }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    fun choiceTimeNotif(state: TimePickerState, context: Context) {
+        notif.value = false
+        val newConfig = TimeConfig(
+            state.hour,
+            state.minute
+        )
+        Log.d("Periodic", "config=$newConfig")
+        save(newConfig)
+        schedule(newConfig, context)
     }
 
     fun winrate(good: Int, bad: Int): Int {
@@ -96,26 +108,23 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun save(config: TimeConfig) {
         viewModelScope.launch {
             stats.edit {
-                it[KEY_E] = config.enabled
-                it[KEY_H] = config.hour
-                it[KEY_M] = config.minute
+                it[notifH] = config.hour
+                it[notifM] = config.minute
             }
         }
     }
 
     val prefConfig = stats.data.map {
         TimeConfig(
-            it[KEY_E] ?: false,
-            it[KEY_H] ?: 8,
-            it[KEY_M] ?: 0
+            it[notifH] ?: 8,
+            it[notifM] ?: 0
         )
     }
 
-    fun schedule(config: TimeConfig, context: Context) {
+    private fun schedule(config: TimeConfig, context: Context) {
         val wm = WorkManager.getInstance(context)
         wm.cancelAllWork()
-        if (config.enabled)
-            wm.enqueue(request(config.hour, config.minute))
+        wm.enqueue(request(config.hour, config.minute))
     }
 
     private fun request(h: Int, m: Int): PeriodicWorkRequest {

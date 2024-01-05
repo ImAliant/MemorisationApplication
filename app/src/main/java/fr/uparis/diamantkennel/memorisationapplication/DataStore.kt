@@ -24,6 +24,5 @@ const val STATS_TOTAL_GOOD = "total_good"
 /** DataStore clef lié au nombre de questions mal répondu */
 const val STATS_TOTAL_BAD = "total_bad"
 
-const val ENABLED = "enabled"
 const val HOUR = "hour"
 const val MINUTE = "minute"
