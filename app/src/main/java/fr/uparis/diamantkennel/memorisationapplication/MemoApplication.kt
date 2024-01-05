@@ -7,7 +7,7 @@ import android.content.Context
 import android.os.Build
 import fr.uparis.diamantkennel.memorisationapplication.data.QuestionsDB
 
-const val CHANNEL_ID = "MY_CHANNEL_ID"
+const val CHANNEL_ID = "REMINDERS"
 
 class MemoApplication : Application() {
     val database: QuestionsDB by lazy { QuestionsDB.getDataBase(this) }

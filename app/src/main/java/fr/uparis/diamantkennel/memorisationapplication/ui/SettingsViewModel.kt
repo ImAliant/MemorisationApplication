@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.RequiresApi
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,6 +48,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val statTotalGood = stats.data.map { it[statsKeyTotalGood] ?: 0 }
     val statTotalBad = stats.data.map { it[statsKeyTotalBad] ?: 0 }
 
+    var prefConfig = stats.data.map { TimeConfig(it[notifH] ?: 8, it[notifM] ?: 0) }
+
     val deletionDB = mutableStateOf(false)
     val deletionStat = mutableStateOf(false)
     var notif = mutableStateOf(false)
@@ -81,7 +82,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             state.hour,
             state.minute
         )
-        Log.d("Periodic", "config=$newConfig")
         save(newConfig)
         schedule(newConfig, context)
     }
@@ -105,20 +105,13 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             context.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
     }
 
-    fun save(config: TimeConfig) {
+    private fun save(config: TimeConfig) {
         viewModelScope.launch {
             stats.edit {
                 it[notifH] = config.hour
                 it[notifM] = config.minute
             }
         }
-    }
-
-    val prefConfig = stats.data.map {
-        TimeConfig(
-            it[notifH] ?: 8,
-            it[notifM] ?: 0
-        )
     }
 
     private fun schedule(config: TimeConfig, context: Context) {
@@ -136,10 +129,9 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         if (target.before(now))
             target.add(Calendar.DAY_OF_YEAR, 1)
         val delta = target.timeInMillis - now.timeInMillis
-        val request = PeriodicWorkRequest.Builder(RappelWorker::class.java, 1, TimeUnit.DAYS)
+
+        return PeriodicWorkRequest.Builder(RappelWorker::class.java, 1, TimeUnit.DAYS)
             .setInitialDelay(delta, TimeUnit.MILLISECONDS)
             .build()
-        Log.d("Periodic", "request: $request")
-        return request
     }
 }

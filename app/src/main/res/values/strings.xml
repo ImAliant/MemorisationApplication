@@ -57,5 +57,7 @@
     <string name="notif_reminder_content">Il est temps de réviser !</string>
     <string name="time_notif_button">Modifier heure de rappel</string>
     <string name="time_notif">Choix heure de rappel</string>
-    <string name="time_notif_desc">Choisissez l\'heure à laquelle vous souhaitez être notifié</string>
+    <string name="gestion">Gestion</string>
+    <string name="notification">Notifications</string>
+    <string name="confirm">Confirmer</string>
 </resources>

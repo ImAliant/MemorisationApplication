@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -77,10 +78,9 @@ fun SettingsScreen(padding: PaddingValues, model: SettingsViewModel = viewModel(
         CleanStatDialog(model::cleanStats) { cleanStatRequest = false }
     }
 
-    if (choiceTimeNotifRequest)
-    {
+    if (choiceTimeNotifRequest) {
         ChoiceTimeNotifDialog(
-            { (model::choiceTimeNotif)(state, context) },
+            { model.choiceTimeNotif(state, context) },
             { choiceTimeNotifRequest = false },
             state
         )
@@ -96,35 +96,10 @@ fun SettingsScreen(padding: PaddingValues, model: SettingsViewModel = viewModel(
         Divider(color = Color.Gray)
         Spacer(modifier = Modifier.padding(top = 10.dp))
 
-        Text(text = "Gestion", fontSize = 30.sp)
+        Text(text = context.getString(R.string.notification), fontSize = 30.sp)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Button(
-                onClick = { deletionDBRequest = true },
-                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.red))
-            ) {
-                Text(text = context.getString(R.string.main_button_deletebase))
-            }
-
-            Button(
-                onClick = { cleanStatRequest = true },
-                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.red))
-            ) {
-                Text(text = context.getString(R.string.clean_stat_button))
-            }
-        }
-
-        Spacer(modifier = Modifier.padding(top = 10.dp))
-        Divider(color = Color.Gray)
-        Spacer(modifier = Modifier.padding(top = 10.dp))
-
-        Text(text = "Notifications", fontSize = 30.sp)
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceEvenly
         ) {
             Button(
                 enabled = !permissionNotif,
@@ -141,6 +116,30 @@ fun SettingsScreen(padding: PaddingValues, model: SettingsViewModel = viewModel(
                 }
             ) {
                 Text(text = context.getString(R.string.time_notif_button))
+            }
+        }
+
+        Spacer(modifier = Modifier.padding(top = 10.dp))
+        Divider(color = Color.Gray)
+        Spacer(modifier = Modifier.padding(top = 10.dp))
+
+        Text(text = context.getString(R.string.gestion), fontSize = 30.sp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Button(
+                onClick = { deletionDBRequest = true },
+                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.red))
+            ) {
+                Text(text = context.getString(R.string.main_button_deletebase))
+            }
+
+            Button(
+                onClick = { cleanStatRequest = true },
+                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.red))
+            ) {
+                Text(text = context.getString(R.string.clean_stat_button))
             }
         }
     }
@@ -197,7 +196,7 @@ fun CleanStatDialog(confirm: () -> Unit, dismiss: () -> Unit) =
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChoiceTimeNotifDialog(confirm: () -> Unit, dismiss: () -> Unit, state: TimePickerState) {
-    Dialog(onDismissRequest = { dismiss() }) {
+    Dialog(onDismissRequest = dismiss) {
         Card(
             modifier = Modifier
                 .padding(16.dp)
@@ -209,23 +208,16 @@ fun ChoiceTimeNotifDialog(confirm: () -> Unit, dismiss: () -> Unit, state: TimeP
                 modifier = Modifier.padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = LocalContext.current.getString(R.string.time_notif), fontSize = 30.sp)
-                Text(text = LocalContext.current.getString(R.string.time_notif_desc))
+                Text(
+                    text = LocalContext.current.getString(R.string.time_notif),
+                    fontSize = 30.sp,
+                    textAlign = TextAlign.Center
+                )
 
-                Spacer(modifier = Modifier.padding(top = 10.dp))
                 TimePicker(state = state, layoutType = TimePickerLayoutType.Vertical)
-                Spacer(modifier = Modifier.padding(top = 10.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Button(onClick = dismiss) {
-                        Text(text = LocalContext.current.getString(R.string.no))
-                    }
-                    Button(onClick = confirm) {
-                        Text(text = LocalContext.current.getString(R.string.yes))
-                    }
+                Button(onClick = confirm) {
+                    Text(text = LocalContext.current.getString(R.string.confirm))
                 }
             }
         }
