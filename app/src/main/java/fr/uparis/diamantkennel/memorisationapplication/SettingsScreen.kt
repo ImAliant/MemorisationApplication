@@ -1,5 +1,8 @@
 package fr.uparis.diamantkennel.memorisationapplication
 
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,6 +35,12 @@ fun SettingsScreen(padding: PaddingValues, model: SettingsViewModel = viewModel(
 
     var deletionDBRequest by model.deletionDB
     var cleanStatRequest by model.deletionStat
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) {
+        Log.d("permissions", if(it) "granted" else "denied")
+    }
 
     if (deletionDBRequest) {
         DeletionDBDialog(model::deleteDb) { deletionDBRequest = false }
@@ -69,6 +78,15 @@ fun SettingsScreen(padding: PaddingValues, model: SettingsViewModel = viewModel(
             ) {
                 Text(text = context.getString(R.string.clean_stat_button))
             }
+        }
+
+        Button(
+            enabled = model.isNotGranted(context),
+            onClick = {
+                model.requestNotificationPermission(permissionLauncher)
+            }
+        ) {
+            Text(text = context.getString(R.string.permission_button))
         }
     }
 }

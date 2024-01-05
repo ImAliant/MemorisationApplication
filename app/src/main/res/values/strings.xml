@@ -50,4 +50,5 @@
     <string name="clean_stat_button">Réinitialiser stats</string>
     <string name="clean_stat">Réinitialiser les statistiques</string>
     <string name="clean_stat_desc">Voulez-vous réinitialiser les statistiques ?</string>
+    <string name="permission_button">Autoriser notification</string>
 </resources>

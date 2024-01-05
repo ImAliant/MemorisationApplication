@@ -1,6 +1,9 @@
 package fr.uparis.diamantkennel.memorisationapplication.ui
 
 import android.app.Application
+import android.content.Context
+import android.content.pm.PackageManager
+import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.runtime.mutableStateOf
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -58,5 +61,15 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             return 0
         }
         return ((good.toFloat() / total.toFloat()) * 100).toInt()
+    }
+
+    fun requestNotificationPermission(launcher: ActivityResultLauncher<String>)
+    {
+        launcher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+    }
+
+    fun isNotGranted(context: Context): Boolean
+    {
+        return context.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
     }
 }

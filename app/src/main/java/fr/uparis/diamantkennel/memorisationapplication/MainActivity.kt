@@ -61,7 +61,7 @@ fun MainScreenMainActivity() {
 
 @Preview(showBackground = true)
 @Composable
-fun MainScreenActivityPreview() {
+fun MainScreenPreview() {
     MainScreen()
 }
 
