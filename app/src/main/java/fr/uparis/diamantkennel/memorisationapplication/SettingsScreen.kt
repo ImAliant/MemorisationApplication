@@ -1,8 +1,9 @@
 package fr.uparis.diamantkennel.memorisationapplication
 
-import android.util.Log
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -29,17 +30,22 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.uparis.diamantkennel.memorisationapplication.ui.SettingsViewModel
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun SettingsScreen(padding: PaddingValues, model: SettingsViewModel = viewModel()) {
     val context = LocalContext.current
 
     var deletionDBRequest by model.deletionDB
     var cleanStatRequest by model.deletionStat
+    var permissionNotif by model.gavePermissionNow
+    model.checkPermission(context)
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
     ) {
-        Log.d("permissions", if(it) "granted" else "denied")
+        if (it) {
+            permissionNotif = true
+        }
     }
 
     if (deletionDBRequest) {
@@ -81,7 +87,7 @@ fun SettingsScreen(padding: PaddingValues, model: SettingsViewModel = viewModel(
         }
 
         Button(
-            enabled = model.isNotGranted(context),
+            enabled = !permissionNotif,
             onClick = {
                 model.requestNotificationPermission(permissionLauncher)
             }

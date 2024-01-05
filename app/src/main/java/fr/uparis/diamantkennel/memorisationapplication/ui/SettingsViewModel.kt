@@ -3,7 +3,9 @@ package fr.uparis.diamantkennel.memorisationapplication.ui
 import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.result.ActivityResultLauncher
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.mutableStateOf
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -36,6 +38,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val deletionDB = mutableStateOf(false)
     val deletionStat = mutableStateOf(false)
 
+    val gavePermissionNow = mutableStateOf(false)
+
     fun deleteDb() {
         deletionDB.value = false
         viewModelScope.launch(Dispatchers.IO) {
@@ -63,13 +67,14 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         return ((good.toFloat() / total.toFloat()) * 100).toInt()
     }
 
-    fun requestNotificationPermission(launcher: ActivityResultLauncher<String>)
-    {
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    fun requestNotificationPermission(launcher: ActivityResultLauncher<String>) {
         launcher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
     }
 
-    fun isNotGranted(context: Context): Boolean
-    {
-        return context.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    fun checkPermission(context: Context) {
+        gavePermissionNow.value =
+            context.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
     }
 }

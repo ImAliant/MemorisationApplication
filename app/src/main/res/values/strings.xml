@@ -51,4 +51,8 @@
     <string name="clean_stat">Réinitialiser les statistiques</string>
     <string name="clean_stat_desc">Voulez-vous réinitialiser les statistiques ?</string>
     <string name="permission_button">Autoriser notification</string>
+    <string name="notif_channel_name">Rappels</string>
+    <string name="notif_channel_desc">Notifications de rappel</string>
+    <string name="notif_reminder_title">Rappel</string>
+    <string name="notif_reminder_content">Il est temps de réviser !</string>
 </resources>

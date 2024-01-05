@@ -20,8 +20,8 @@
   - [x] Modifier la question
   - [x] Supprimer la question
   - [ ] Afficher les statistiques du jeu de question en cours
-- [ ] Notification
-  - [ ] une fois par jour
+- [x] Notification
+  - [x] une fois par jour
 - [x] Paramètres
   - [ ] Temps de réponse aux questions
   - [ ] Thème

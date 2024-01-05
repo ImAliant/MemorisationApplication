@@ -6,7 +6,6 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import fr.uparis.diamantkennel.memorisationapplication.data.QuestionsDB
@@ -22,18 +21,15 @@ class MemoApplication : Application() {
         super.onCreate()
         createChannel(this)
 
-        if (this.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+        if (this.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
             schedule()
-        else
-            Log.d("MemoApplication", "onCreate: no permission")
+        }
     }
 
-    private fun createChannel(c: Context)
-    {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-        {
-            val name = "MY_CHANNEL"
-            val descriptionText = "notification channel for Memorisation project"
+    private fun createChannel(c: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = c.getString(R.string.notif_channel_name)
+            val descriptionText = c.getString(R.string.notif_channel_desc)
             val importance = NotificationManager.IMPORTANCE_DEFAULT
             val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
                 description = descriptionText
@@ -44,15 +40,13 @@ class MemoApplication : Application() {
         }
     }
 
-    private fun schedule()
-    {
+    private fun schedule() {
         val wm = WorkManager.getInstance(this)
         wm.cancelAllWork()
         wm.enqueue(request(10, 45))
     }
 
-    private fun request(h: Int, m: Int): PeriodicWorkRequest
-    {
+    private fun request(h: Int, m: Int): PeriodicWorkRequest {
         val now = Calendar.getInstance()
         val target = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, h)
@@ -60,11 +54,10 @@ class MemoApplication : Application() {
         }
         if (target.before(now))
             target.add(Calendar.DAY_OF_YEAR, 1)
-        val delta=target.timeInMillis - now.timeInMillis
-        val request = PeriodicWorkRequest.Builder(RappelWorker::class.java, 1, TimeUnit.DAYS)
-                .setInitialDelay(delta, TimeUnit.MILLISECONDS)
-                .build()
-        Log.d("Periodic", "request: $request")
-        return request
+        val delta = target.timeInMillis - now.timeInMillis
+
+        return PeriodicWorkRequest.Builder(RappelWorker::class.java, 1, TimeUnit.DAYS)
+            .setInitialDelay(delta, TimeUnit.MILLISECONDS)
+            .build()
     }
 }

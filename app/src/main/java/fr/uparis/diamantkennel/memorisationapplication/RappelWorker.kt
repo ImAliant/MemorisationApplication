@@ -16,8 +16,7 @@ class RappelWorker(private val context: Context, workerParams: WorkerParameters)
         return Result.success()
     }
 
-    private fun createNotification(context: Context)
-    {
+    private fun createNotification(context: Context) {
         val intent = Intent(context, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             context, 0, intent, PendingIntent.FLAG_IMMUTABLE
@@ -25,8 +24,8 @@ class RappelWorker(private val context: Context, workerParams: WorkerParameters)
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle("Rappel")
-            .setContentText("Il est temps de réviser !")
+            .setContentTitle(context.getString(R.string.notif_reminder_title))
+            .setContentText(context.getString(R.string.notif_reminder_content))
             .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         val notification = builder.build()
