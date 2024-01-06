@@ -17,6 +17,7 @@ import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import fr.uparis.diamantkennel.memorisationapplication.HOUR
 import fr.uparis.diamantkennel.memorisationapplication.MINUTE
+import fr.uparis.diamantkennel.memorisationapplication.DELAY
 import fr.uparis.diamantkennel.memorisationapplication.MemoApplication
 import fr.uparis.diamantkennel.memorisationapplication.RappelWorker
 import fr.uparis.diamantkennel.memorisationapplication.STATS_TOTAL_BAD
@@ -34,7 +35,7 @@ import java.util.concurrent.TimeUnit
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = (application as MemoApplication).database.memoDao()
 
-    private val stats = application.dataStore
+    private val datastore = application.dataStore
     private val statsKeyTotal = intPreferencesKey(STATS_TOTAL_TRIED)
     private val statsKeyTotalDone = intPreferencesKey(STATS_TOTAL_DONE)
     private val statsKeyTotalGood = intPreferencesKey(STATS_TOTAL_GOOD)
@@ -43,16 +44,19 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val notifH = intPreferencesKey(HOUR)
     private val notifM = intPreferencesKey(MINUTE)
 
-    val statTotal = stats.data.map { it[statsKeyTotal] ?: 0 }
-    val statTotalDone = stats.data.map { it[statsKeyTotalDone] ?: 0 }
-    val statTotalGood = stats.data.map { it[statsKeyTotalGood] ?: 0 }
-    val statTotalBad = stats.data.map { it[statsKeyTotalBad] ?: 0 }
+    private val delay = intPreferencesKey(DELAY)
 
-    var prefConfig = stats.data.map { TimeConfig(it[notifH] ?: 8, it[notifM] ?: 0) }
+    val statTotal = datastore.data.map { it[statsKeyTotal] ?: 0 }
+    val statTotalDone = datastore.data.map { it[statsKeyTotalDone] ?: 0 }
+    val statTotalGood = datastore.data.map { it[statsKeyTotalGood] ?: 0 }
+    val statTotalBad = datastore.data.map { it[statsKeyTotalBad] ?: 0 }
+
+    var prefConfigTime = datastore.data.map { TimeConfig(it[notifH] ?: 8, it[notifM] ?: 0) }
 
     val deletionDB = mutableStateOf(false)
     val deletionStat = mutableStateOf(false)
     var notif = mutableStateOf(false)
+    val delayRequest = mutableStateOf(false)
 
     val gavePermissionNow = mutableStateOf(false)
 
@@ -66,7 +70,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun cleanStats() {
         deletionStat.value = false
         viewModelScope.launch {
-            stats.edit {
+            datastore.edit {
                 it[statsKeyTotal] = 0
                 it[statsKeyTotalDone] = 0
                 it[statsKeyTotalGood] = 0
@@ -84,6 +88,15 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         )
         save(newConfig)
         schedule(newConfig, context)
+    }
+
+    fun choiceDelay(value: Int) {
+        delayRequest.value = false
+        viewModelScope.launch {
+            datastore.edit {
+                it[delay] = value
+            }
+        }
     }
 
     fun winrate(good: Int, bad: Int): Int {
@@ -107,7 +120,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     private fun save(config: TimeConfig) {
         viewModelScope.launch {
-            stats.edit {
+            datastore.edit {
                 it[notifH] = config.hour
                 it[notifM] = config.minute
             }

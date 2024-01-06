@@ -11,20 +11,25 @@ import fr.uparis.diamantkennel.memorisationapplication.STATS_TOTAL_BAD
 import fr.uparis.diamantkennel.memorisationapplication.STATS_TOTAL_DONE
 import fr.uparis.diamantkennel.memorisationapplication.STATS_TOTAL_GOOD
 import fr.uparis.diamantkennel.memorisationapplication.STATS_TOTAL_TRIED
+import fr.uparis.diamantkennel.memorisationapplication.DELAY
 import fr.uparis.diamantkennel.memorisationapplication.data.Question
 import fr.uparis.diamantkennel.memorisationapplication.dataStore
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class PlayViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = (application as MemoApplication).database.memoDao()
     private var questions = mutableStateOf<List<Question>>(listOf())
 
-    private val stats = application.dataStore
+    private val datastore = application.dataStore
     private val statsKeyTotal = intPreferencesKey(STATS_TOTAL_TRIED)
     private val statsKeyTotalDone = intPreferencesKey(STATS_TOTAL_DONE)
     private val statsKeyTotalGood = intPreferencesKey(STATS_TOTAL_GOOD)
     private val statsKeyTotalBad = intPreferencesKey(STATS_TOTAL_BAD)
+
+    private val delayKey= intPreferencesKey(DELAY)
+    val delay = datastore.data.map { it[delayKey] ?: 3000 }
 
     var currentQuestion = mutableStateOf<Question?>(null)
     private var index = mutableStateOf(0)
@@ -42,7 +47,7 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
                 dao.loadQuestions(setId).collect { questionList ->
                     questions.value = questionList.shuffled()
                     if (questions.value.isNotEmpty()) {
-                        stats.edit { it[statsKeyTotal] = (it[statsKeyTotal] ?: 0) + 1 }
+                        datastore.edit { it[statsKeyTotal] = (it[statsKeyTotal] ?: 0) + 1 }
                     }
                     updateQuestion()
                 }
@@ -58,7 +63,7 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
                 /* Fin des questions */
                 end.value = true
                 viewModelScope.launch {
-                    stats.edit {
+                    datastore.edit {
                         it[statsKeyTotalDone] = (it[statsKeyTotalDone] ?: 0) + 1
                     }
                 }
@@ -114,7 +119,7 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
         when (evaluatedAnswer.value!!) {
             AnswerType.GOOD -> {
                 viewModelScope.launch {
-                    stats.edit {
+                    datastore.edit {
                         it[statsKeyTotalGood] = (it[statsKeyTotalGood] ?: 0) + 1
                     }
                 }
@@ -123,7 +128,7 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
 
             AnswerType.BAD -> {
                 viewModelScope.launch {
-                    stats.edit {
+                    datastore.edit {
                         it[statsKeyTotalBad] = (it[statsKeyTotalBad] ?: 0) + 1
                     }
                 }
@@ -132,7 +137,7 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun isDelayElapsed() = currentTime.value - timestampQuestion.value >= 3000
+    fun isDelayElapsed(delay: Int) = currentTime.value - timestampQuestion.value >= delay
 
     fun updateTime(time: Long) {
         currentTime.value = time

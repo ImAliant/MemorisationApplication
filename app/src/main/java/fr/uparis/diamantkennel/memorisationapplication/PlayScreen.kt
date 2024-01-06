@@ -16,6 +16,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -48,6 +49,7 @@ fun PlayScreen(
     val correction by model.evaluatedAnswer
     var giveup by model.showAnswer
     val gameEnded by model.end
+    val delay by model.delay.collectAsState(initial = 3000)
 
     val cpt by model.compteurSb
     if (correction != null) {
@@ -72,7 +74,7 @@ fun PlayScreen(
     }
 
     // Update timer if needed
-    if (!model.isDelayElapsed() && question != null) {
+    if (!model.isDelayElapsed(delay) && question != null) {
         model.updateTime(System.currentTimeMillis())
     }
 
@@ -109,7 +111,7 @@ fun PlayScreen(
                 }
 
                 Button(
-                    enabled = model.isDelayElapsed(),
+                    enabled = model.isDelayElapsed(delay),
                     onClick = { giveup = true }) {
                     Text(text = context.getString(R.string.see_answer))
                 }

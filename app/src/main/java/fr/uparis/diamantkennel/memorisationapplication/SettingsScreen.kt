@@ -1,7 +1,9 @@
 package fr.uparis.diamantkennel.memorisationapplication
 
+import android.content.Context
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
@@ -13,12 +15,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerLayoutType
@@ -27,12 +31,15 @@ import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -51,15 +58,17 @@ fun SettingsScreen(padding: PaddingValues, model: SettingsViewModel = viewModel(
     var deletionDBRequest by model.deletionDB
     var cleanStatRequest by model.deletionStat
     var choiceTimeNotifRequest by model.notif
+    var choiceDelayRequest by model.delayRequest
     var permissionNotif by model.gavePermissionNow
 
-    val prefConfig = runBlocking { model.prefConfig.first() }
+    val prefConfigTime = runBlocking { model.prefConfigTime.first() }
 
-    val state = rememberTimePickerState(
-        initialHour = prefConfig.hour,
-        initialMinute = prefConfig.minute,
+    val stateTime = rememberTimePickerState(
+        initialHour = prefConfigTime.hour,
+        initialMinute = prefConfigTime.minute,
         is24Hour = true
     )
+
     model.checkPermission(context)
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -80,9 +89,16 @@ fun SettingsScreen(padding: PaddingValues, model: SettingsViewModel = viewModel(
 
     if (choiceTimeNotifRequest) {
         ChoiceTimeNotifDialog(
-            { model.choiceTimeNotif(state, context) },
+            { model.choiceTimeNotif(stateTime, context) },
             { choiceTimeNotifRequest = false },
-            state
+            stateTime
+        )
+    }
+
+    if (choiceDelayRequest) {
+        ChoiceDelayDialog(
+            { model.choiceDelay(it) },
+            { choiceDelayRequest = false },
         )
     }
 
@@ -92,54 +108,89 @@ fun SettingsScreen(padding: PaddingValues, model: SettingsViewModel = viewModel(
     ) {
         Stats(model)
 
-        Spacer(modifier = Modifier.padding(top = 10.dp))
-        Divider(color = Color.Gray)
-        Spacer(modifier = Modifier.padding(top = 10.dp))
+        AddSpacedDivider()
 
-        Text(text = context.getString(R.string.notification), fontSize = 30.sp)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Button(
-                enabled = !permissionNotif,
-                onClick = {
-                    model.requestNotificationPermission(permissionLauncher)
-                }
-            ) {
-                Text(text = context.getString(R.string.permission_button))
-            }
-            Button(
-                enabled = permissionNotif,
-                onClick = {
-                    choiceTimeNotifRequest = true
-                }
-            ) {
-                Text(text = context.getString(R.string.time_notif_button))
-            }
+        NotificationSettings(context, model, permissionNotif, permissionLauncher) {
+            choiceTimeNotifRequest = true
         }
 
-        Spacer(modifier = Modifier.padding(top = 10.dp))
-        Divider(color = Color.Gray)
-        Spacer(modifier = Modifier.padding(top = 10.dp))
+        AddSpacedDivider()
 
-        Text(text = context.getString(R.string.gestion), fontSize = 30.sp)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Button(
-                onClick = { deletionDBRequest = true },
-                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.red))
-            ) {
-                Text(text = context.getString(R.string.main_button_deletebase))
+        GestionSettings(context, { deletionDBRequest = true }, { cleanStatRequest = true })
+
+        AddSpacedDivider()
+
+        GameSettings(context) { choiceDelayRequest = true }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@Composable
+fun NotificationSettings(
+    context: Context,
+    model: SettingsViewModel,
+    permissionNotif: Boolean,
+    permissionLauncher: ActivityResultLauncher<String>,
+    onTimeNotifButtonClick: () -> Unit,
+) {
+    Text(text = context.getString(R.string.notification), fontSize = 30.sp)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Button(
+            enabled = !permissionNotif,
+            onClick = {
+                model.requestNotificationPermission(permissionLauncher)
             }
+        ) {
+            Text(text = context.getString(R.string.permission_button))
+        }
+        Button(
+            enabled = permissionNotif,
+            onClick = onTimeNotifButtonClick
+        ) {
+            Text(text = context.getString(R.string.time_notif_button))
+        }
+    }
+}
 
-            Button(
-                onClick = { cleanStatRequest = true },
-                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.red))
-            ) {
-                Text(text = context.getString(R.string.clean_stat_button))
+@Composable
+fun GestionSettings(context: Context, deletionDBRequest: () -> Unit, cleanStatRequest: () -> Unit) {
+    Text(text = context.getString(R.string.gestion), fontSize = 30.sp)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Button(
+            onClick = deletionDBRequest,
+            colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.red))
+        ) {
+            Text(text = context.getString(R.string.main_button_deletebase))
+        }
+
+        Button(
+            onClick = cleanStatRequest,
+            colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.red))
+        ) {
+            Text(text = context.getString(R.string.clean_stat_button))
+        }
+    }
+}
+
+@Composable
+fun GameSettings(context: Context, onDelayButtonClick: () -> Unit) {
+    Text(text = context.getString(R.string.game), fontSize = 30.sp)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Column (
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){
+            Button(onClick = onDelayButtonClick) {
+                Text(text = context.getString(R.string.choice_delay_button))
             }
         }
     }
@@ -222,4 +273,39 @@ fun ChoiceTimeNotifDialog(confirm: () -> Unit, dismiss: () -> Unit, state: TimeP
             }
         }
     }
+}
+
+@Composable
+fun ChoiceDelayDialog(confirm: (Int) -> Unit, dismiss: () -> Unit) {
+    var value by remember { mutableStateOf("") }
+
+    AlertDialog(onDismissRequest = dismiss,
+        title = { Text(text = LocalContext.current.getString(R.string.choice_delay)) },
+        text = {
+            OutlinedTextField(
+                value = value,
+                onValueChange = {
+                    value = if (it.toIntOrNull() != null) { it } else ""
+                },
+                label = { Text(text = LocalContext.current.getString(R.string.enter_integer)) },
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Number
+                ),
+                singleLine = true
+            )
+        },
+        confirmButton = {
+            Button(onClick = { if (value.isNotBlank()) { confirm(value.toInt()) } }) {
+                Text(text = LocalContext.current.getString(R.string.confirm))
+            }
+        }
+    )
+}
+
+
+@Composable
+fun AddSpacedDivider() {
+    Spacer(modifier = Modifier.padding(top = 20.dp))
+    Divider(color = Color.Gray)
+    Spacer(modifier = Modifier.padding(top = 20.dp))
 }

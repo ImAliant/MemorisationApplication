@@ -39,6 +39,7 @@
     <string name="delete_db_desc">Voulez-vous supprimer la base de données ?</string>
     <string name="yes">Oui</string>
     <string name="no">Non</string>
+    <string name="validate">Valider</string>
     <string name="bravo">Bravo</string>
     <string name="set_ended">Le set de questions est terminé !</string>
     <string name="stats">Statistiques</string>
@@ -60,4 +61,9 @@
     <string name="gestion">Gestion</string>
     <string name="notification">Notifications</string>
     <string name="confirm">Confirmer</string>
+    <string name="game">Parametre du jeu</string>
+    <string name="choice_delay_button">Délai avant solution</string>
+    <string name="reset_game_settings_button">Réinitialiser les paramètres du jeu</string>
+    <string name="choice_delay">Choix du délai avant solution</string>
+    <string name="enter_integer">Entrez un entier (en ms)</string>
 </resources>
