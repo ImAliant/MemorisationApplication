@@ -63,6 +63,7 @@
     <string name="confirm">Confirmer</string>
     <string name="game">Parametre du jeu</string>
     <string name="choice_delay_button">Délai avant solution</string>
+    <string name="reset_button">Réinitialiser par défaut</string>
     <string name="reset_game_settings_button">Réinitialiser les paramètres du jeu</string>
     <string name="choice_delay">Choix du délai avant solution</string>
     <string name="enter_integer">Entrez un entier (en ms)</string>

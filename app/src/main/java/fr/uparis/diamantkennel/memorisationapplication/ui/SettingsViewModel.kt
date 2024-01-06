@@ -53,10 +53,10 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     var prefConfigTime = datastore.data.map { TimeConfig(it[notifH] ?: 8, it[notifM] ?: 0) }
 
-    val deletionDB = mutableStateOf(false)
-    val deletionStat = mutableStateOf(false)
+    var deletionDB = mutableStateOf(false)
+    var deletionStat = mutableStateOf(false)
     var notif = mutableStateOf(false)
-    val delayRequest = mutableStateOf(false)
+    var delayRequest = mutableStateOf(false)
 
     val gavePermissionNow = mutableStateOf(false)
 
@@ -95,6 +95,14 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             datastore.edit {
                 it[delay] = value
+            }
+        }
+    }
+
+    fun resetDelay() {
+        viewModelScope.launch {
+            datastore.edit {
+                it[delay] = 5000
             }
         }
     }
@@ -146,5 +154,18 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         return PeriodicWorkRequest.Builder(RappelWorker::class.java, 1, TimeUnit.DAYS)
             .setInitialDelay(delta, TimeUnit.MILLISECONDS)
             .build()
+    }
+
+    fun dismissDeletionDB() {
+        deletionDB.value = false
+    }
+    fun dismissDeletionStat() {
+        deletionStat.value = false
+    }
+    fun dismissNotif() {
+        notif.value = false
+    }
+    fun dismissDelayRequest() {
+        delayRequest.value = false
     }
 }

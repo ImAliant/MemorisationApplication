@@ -8,7 +8,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -52,14 +51,13 @@ import kotlinx.coroutines.runBlocking
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(padding: PaddingValues, model: SettingsViewModel = viewModel()) {
+fun SettingsScreen(model: SettingsViewModel = viewModel()) {
     val context = LocalContext.current
 
     var deletionDBRequest by model.deletionDB
     var cleanStatRequest by model.deletionStat
     var choiceTimeNotifRequest by model.notif
     var choiceDelayRequest by model.delayRequest
-    var permissionNotif by model.gavePermissionNow
 
     val prefConfigTime = runBlocking { model.prefConfigTime.first() }
 
@@ -71,6 +69,45 @@ fun SettingsScreen(padding: PaddingValues, model: SettingsViewModel = viewModel(
 
     model.checkPermission(context)
 
+    ShowDialog(deletionDBRequest) { DeletionDBDialog(model::deleteDb, model::dismissDeletionDB) }
+    ShowDialog(cleanStatRequest) { CleanStatDialog(model::cleanStats, model::dismissDeletionStat) }
+    ShowDialog(choiceTimeNotifRequest) {
+        ChoiceTimeNotifDialog(
+            { model.choiceTimeNotif(stateTime, context) },
+            model::dismissNotif,
+            stateTime
+        )
+    }
+    ShowDialog(choiceDelayRequest) {
+        ChoiceDelayDialog(
+            { model.choiceDelay(it) },
+            model::dismissDelayRequest
+        )
+    }
+
+    Settings(
+        model,
+        { choiceTimeNotifRequest = true },
+        { deletionDBRequest = true },
+        { cleanStatRequest = true },
+        { choiceDelayRequest = true },
+        model::resetDelay
+    )
+}
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@Composable
+fun Settings(
+    model: SettingsViewModel = viewModel(),
+    onTimeNotifButtonClick: () -> Unit,
+    deletionDBRequest: () -> Unit,
+    cleanStatRequest: () -> Unit,
+    onDelayButtonClick: () -> Unit,
+    onResetButtonClick: () -> Unit,
+) {
+    val context = LocalContext.current
+
+    var permissionNotif by model.gavePermissionNow
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
     ) {
@@ -79,48 +116,17 @@ fun SettingsScreen(padding: PaddingValues, model: SettingsViewModel = viewModel(
         }
     }
 
-    if (deletionDBRequest) {
-        DeletionDBDialog(model::deleteDb) { deletionDBRequest = false }
-    }
-
-    if (cleanStatRequest) {
-        CleanStatDialog(model::cleanStats) { cleanStatRequest = false }
-    }
-
-    if (choiceTimeNotifRequest) {
-        ChoiceTimeNotifDialog(
-            { model.choiceTimeNotif(stateTime, context) },
-            { choiceTimeNotifRequest = false },
-            stateTime
-        )
-    }
-
-    if (choiceDelayRequest) {
-        ChoiceDelayDialog(
-            { model.choiceDelay(it) },
-            { choiceDelayRequest = false },
-        )
-    }
-
     Column(
-        modifier = Modifier.padding(padding),
+        modifier = Modifier.padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Stats(model)
-
+        Stats(model = model)
         AddSpacedDivider()
-
-        NotificationSettings(context, model, permissionNotif, permissionLauncher) {
-            choiceTimeNotifRequest = true
-        }
-
+        NotificationSettings(context, model, permissionNotif, permissionLauncher, onTimeNotifButtonClick)
         AddSpacedDivider()
-
-        GestionSettings(context, { deletionDBRequest = true }, { cleanStatRequest = true })
-
+        GestionSettings(context, deletionDBRequest, cleanStatRequest)
         AddSpacedDivider()
-
-        GameSettings(context) { choiceDelayRequest = true }
+        GameSettings(context, onDelayButtonClick, onResetButtonClick)
     }
 }
 
@@ -179,7 +185,7 @@ fun GestionSettings(context: Context, deletionDBRequest: () -> Unit, cleanStatRe
 }
 
 @Composable
-fun GameSettings(context: Context, onDelayButtonClick: () -> Unit) {
+fun GameSettings(context: Context, onDelayButtonClick: () -> Unit, onResetButtonClick: () -> Unit) {
     Text(text = context.getString(R.string.game), fontSize = 30.sp)
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -191,6 +197,12 @@ fun GameSettings(context: Context, onDelayButtonClick: () -> Unit) {
         ){
             Button(onClick = onDelayButtonClick) {
                 Text(text = context.getString(R.string.choice_delay_button))
+            }
+            Button(
+                onClick = onResetButtonClick,
+                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.red))
+            ) {
+                Text(text = context.getString(R.string.reset_button))
             }
         }
     }
@@ -295,7 +307,9 @@ fun ChoiceDelayDialog(confirm: (Int) -> Unit, dismiss: () -> Unit) {
             )
         },
         confirmButton = {
-            Button(onClick = { if (value.isNotBlank()) { confirm(value.toInt()) } }) {
+            Button(onClick = {
+                if (value.isNotBlank()) { confirm(value.toInt()) } else dismiss()
+            }) {
                 Text(text = LocalContext.current.getString(R.string.confirm))
             }
         }

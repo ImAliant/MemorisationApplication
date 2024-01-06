@@ -1,9 +1,11 @@
 package fr.uparis.diamantkennel.memorisationapplication
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
@@ -39,6 +41,7 @@ import fr.uparis.diamantkennel.memorisationapplication.ui.theme.MemorisationAppl
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = STATS)
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -54,18 +57,20 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun MainScreenMainActivity() {
     MainScreen()
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
     MainScreen()
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
@@ -97,7 +102,7 @@ fun MainScreen() {
                     )
                 }
             }
-            composable(SETTINGS) { SettingsScreen(padding) }
+            composable(SETTINGS) { SettingsScreen() }
         }
     }
 }
@@ -135,3 +140,14 @@ fun BottomBar(navController: NavHostController) =
                 )
             })
     }
+
+@Composable
+fun <T: Any> ShowDialog(
+    condition: Boolean,
+    dialog: @Composable () -> T
+) {
+    if (condition) {
+        dialog()
+    }
+}
+

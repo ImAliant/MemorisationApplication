@@ -29,7 +29,7 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
     private val statsKeyTotalBad = intPreferencesKey(STATS_TOTAL_BAD)
 
     private val delayKey= intPreferencesKey(DELAY)
-    val delay = datastore.data.map { it[delayKey] ?: 3000 }
+    val delay = datastore.data.map { it[delayKey] ?: 5000 }
 
     var currentQuestion = mutableStateOf<Question?>(null)
     private var index = mutableStateOf(0)
@@ -137,10 +137,20 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun updateTimer(delay: Int) {
+        if (!isDelayElapsed(delay) && currentQuestion.value != null) {
+            updateTime(System.currentTimeMillis())
+        }
+    }
+
     fun isDelayElapsed(delay: Int) = currentTime.value - timestampQuestion.value >= delay
 
     fun updateTime(time: Long) {
         currentTime.value = time
+    }
+
+    fun giveUp() {
+        showAnswer.value = true
     }
 
 }
