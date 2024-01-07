@@ -63,4 +63,18 @@ class ModifySetViewModel(application: Application) : AndroidViewModel(applicatio
             dao.deleteQuestion(selection.value!!)
         }
     }
+
+    fun modifAction() {
+        action.value = ActionModifySet.MODIFICATION
+    }
+    fun ajoutAction() {
+        action.value = ActionModifySet.AJOUT
+    }
+    fun supprAction() {
+        action.value = ActionModifySet.SUPPRIMER
+    }
+
+    fun dismissAction() {
+        action.value = ActionModifySet.AUCUN
+    }
 }

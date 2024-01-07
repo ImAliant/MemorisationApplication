@@ -36,7 +36,6 @@ import fr.uparis.diamantkennel.memorisationapplication.ui.ActionModifySet
 import fr.uparis.diamantkennel.memorisationapplication.ui.ModifySetViewModel
 import kotlin.text.Typography.ellipsis
 
-
 @Composable
 fun ModifySetScreen(
     padding: PaddingValues,
@@ -47,20 +46,33 @@ fun ModifySetScreen(
     model.setId.value = idSet
     model.updateQuestionList(idSet)
 
-    val context = LocalContext.current
     val currentSelection by model.selection
     val questions by model.questions.collectAsState(listOf())
-    var action by model.action
+    val action by model.action
 
-    if (action == ActionModifySet.AJOUT || action == ActionModifySet.MODIFICATION) {
-        AjoutModifDialog(action, currentSelection, model::ajoutQuestion)
-        { action = ActionModifySet.AUCUN }
+    ShowDialog(action == ActionModifySet.AJOUT || action == ActionModifySet.MODIFICATION) {
+        AjoutModifDialog(action, currentSelection, model::ajoutQuestion, model::dismissAction)
+    }
+    ShowDialog(action == ActionModifySet.SUPPRIMER) {
+        RemoveDialog(model::removeQuestion, model::dismissAction)
     }
 
-    if (action == ActionModifySet.SUPPRIMER) {
-        RemoveDialog(model::removeQuestion)
-        { action = ActionModifySet.AUCUN }
-    }
+    Modify(
+        padding = padding,
+        model = model,
+        questions = questions,
+        currentSelection = currentSelection
+    )
+}
+
+@Composable
+fun Modify(
+    padding: PaddingValues,
+    model: ModifySetViewModel,
+    questions: List<Question>,
+    currentSelection: Question?
+) {
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier.padding(padding),
@@ -71,13 +83,13 @@ fun ModifySetScreen(
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
             Button(
                 enabled = currentSelection != null,
-                onClick = { action = ActionModifySet.MODIFICATION }) {
+                onClick = model::modifAction) {
                 Text(text = context.getString(R.string.modify))
             }
 
             Spacer(modifier = Modifier.padding(2.dp))
 
-            Button(onClick = { action = ActionModifySet.AJOUT }) {
+            Button(onClick = model::ajoutAction) {
                 Text(text = context.getString(R.string.add))
             }
 
@@ -85,7 +97,7 @@ fun ModifySetScreen(
 
             Button(
                 enabled = currentSelection != null,
-                onClick = { action = ActionModifySet.SUPPRIMER }) {
+                onClick = model::supprAction) {
                 Text(text = context.getString(R.string.modify_button_delete))
             }
         }

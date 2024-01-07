@@ -9,15 +9,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -26,10 +25,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import fr.uparis.diamantkennel.memorisationapplication.data.Question
 import fr.uparis.diamantkennel.memorisationapplication.ui.AnswerType
 import fr.uparis.diamantkennel.memorisationapplication.ui.PlayViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayScreen(
     padding: PaddingValues,
@@ -41,40 +40,54 @@ fun PlayScreen(
     // First update the list of questions
     model.updateQuestionList(idSet)
 
-    val context = LocalContext.current
-
     val question by model.currentQuestion
     val reponse by model.proposedAnswer
     val correction by model.evaluatedAnswer
-    var giveup by model.showAnswer
+    val giveup by model.showAnswer
     val gameEnded by model.end
+    val delay by model.delay.collectAsState(initial = 5000)
 
     val cpt by model.compteurSb
-    if (correction != null) {
-        LaunchedEffect(cpt) {
-            model.sbUpdate()
-            snackbarHostState.showSnackbar(
-                when (correction!!) {
-                    AnswerType.GOOD -> context.getString(R.string.good_answer)
-                    AnswerType.BAD -> context.getString(R.string.bad_answer)
-                }, duration = SnackbarDuration.Short
-            )
-            model.resetAfterSb()
-        }
-    }
 
-    if (gameEnded) {
-        EndDialog { navController.navigate(HOME) }
-    }
+    SnackbarAnswer(
+        model,
+        snackbarHostState,
+        cpt,
+        correction
+    )
 
-    if (giveup && question != null) {
+    ShowDialog(gameEnded) { EndDialog { navController.navigate(HOME) } }
+    ShowDialog(giveup && question != null) {
         SolutionDialog(question!!.reponse, model::newQuestion)
     }
 
     // Update timer if needed
-    if (!model.isDelayElapsed() && question != null) {
-        model.updateTime(System.currentTimeMillis())
-    }
+    model.updateTimer(delay)
+
+    Play(
+        padding,
+        navController,
+        idSet,
+        model,
+        question,
+        reponse,
+        correction,
+        delay
+    )
+}
+
+@Composable
+fun Play(
+    padding: PaddingValues,
+    navController: NavController,
+    idSet: Int,
+    model: PlayViewModel,
+    question: Question?,
+    reponse: String,
+    correction: AnswerType?,
+    delay: Int
+) {
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier.padding(padding),
@@ -85,7 +98,7 @@ fun PlayScreen(
                 Text(context.getString(R.string.no_question), fontSize = 30.sp)
             }
         } else {
-            Text(text = question!!.enonce, fontSize = 30.sp, textAlign = TextAlign.Center)
+            Text(text = question.enonce, fontSize = 30.sp, textAlign = TextAlign.Center)
 
             Spacer(modifier = Modifier.padding(top = 20.dp))
 
@@ -109,8 +122,9 @@ fun PlayScreen(
                 }
 
                 Button(
-                    enabled = model.isDelayElapsed(),
-                    onClick = { giveup = true }) {
+                    enabled = model.isDelayElapsed(delay),
+                    onClick = model::giveUp
+                ) {
                     Text(text = context.getString(R.string.see_answer))
                 }
             }
@@ -143,3 +157,25 @@ fun EndDialog(next: () -> Unit) =
         confirmButton = {
             Button(onClick = next) { Text(text = LocalContext.current.getString(R.string.ok)) }
         })
+
+@Composable
+fun SnackbarAnswer(
+    model: PlayViewModel,
+    snackbarHostState: SnackbarHostState,
+    cpt: Int,
+    correction: AnswerType?
+) {
+    val context = LocalContext.current
+    if (correction != null) {
+        LaunchedEffect(cpt) {
+            model.sbUpdate()
+            snackbarHostState.showSnackbar(
+                when (correction) {
+                    AnswerType.GOOD -> context.getString(R.string.good_answer)
+                    AnswerType.BAD -> context.getString(R.string.bad_answer)
+                }, duration = SnackbarDuration.Short
+            )
+            model.resetAfterSb()
+        }
+    }
+}

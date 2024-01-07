@@ -21,7 +21,7 @@
     <string name="error">Erreur</string>
     <string name="delete_set_questions">Supprimer un jeu de question</string>
     <string name="delete_set_qestions_desc">Voulez-vous supprimer ce jeu de question ?</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
     <string name="update_question">Mettre à jour la question</string>
     <string name="add_question">Ajouter une question</string>
     <string name="question">Question</string>
@@ -39,6 +39,7 @@
     <string name="delete_db_desc">Voulez-vous supprimer la base de données ?</string>
     <string name="yes">Oui</string>
     <string name="no">Non</string>
+    <string name="validate">Valider</string>
     <string name="bravo">Bravo</string>
     <string name="set_ended">Le set de questions est terminé !</string>
     <string name="stats">Statistiques</string>
@@ -55,4 +56,15 @@
     <string name="notif_channel_desc">Notifications de rappel</string>
     <string name="notif_reminder_title">Rappel</string>
     <string name="notif_reminder_content">Il est temps de réviser !</string>
+    <string name="time_notif_button">Modifier heure de rappel</string>
+    <string name="time_notif">Choix heure de rappel</string>
+    <string name="gestion">Gestion</string>
+    <string name="notification">Notifications</string>
+    <string name="confirm">Confirmer</string>
+    <string name="game">Parametre du jeu</string>
+    <string name="choice_delay_button">Délai avant solution</string>
+    <string name="reset_button">Réinitialiser par défaut</string>
+    <string name="reset_game_settings_button">Réinitialiser les paramètres du jeu</string>
+    <string name="choice_delay">Choix du délai avant solution</string>
+    <string name="enter_integer">Entrez un entier (en ms)</string>
 </resources>

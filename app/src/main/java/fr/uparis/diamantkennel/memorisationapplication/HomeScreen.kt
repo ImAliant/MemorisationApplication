@@ -68,7 +68,7 @@ fun HomeScreen(
 
     val errorEntry by model.error
 
-    if (errorEntry != null) {
+    ShowDialog(errorEntry != null) {
         ErrorDialog(
             when (errorEntry!!) {
                 ErrorsAjout.BAD_ENTRY -> context.getString(R.string.error_bad_entry)
@@ -76,25 +76,30 @@ fun HomeScreen(
             }, model::cleanErrors
         )
     }
-
-    if (creationRequest) {
-        CreationDialog(
-            dismiss = model::dismissCreation, model = model
-        )
+    ShowDialog(creationRequest) { CreationDialog(model::dismissCreation, model) }
+    ShowDialog(importationRequest) { ImportDialog(model::dismissImportation, model) }
+    ShowDialog(deletionRequest) {
+        DeletionDialog(model::dismissDeleteOne, model::deleteSelected)
     }
 
-    if (importationRequest) {
-        ImportDialog(
-            dismiss = model::dismissImportation, model = model
-        )
-    }
+    Home(
+        padding,
+        navController,
+        model,
+        setOfQuestions,
+        currentSelection
+    )
+}
 
-    if (deletionRequest) {
-        DeletionDialog(
-            model::dismissDeleteOne,
-            model::deleteSelected
-        )
-    }
+@Composable
+private fun Home(
+    padding: PaddingValues,
+    navController: NavController,
+    model: HomeViewModel,
+    setOfQuestions: List<SetOfQuestions> = listOf(),
+    currentSelection: SetQuestions? = null,
+) {
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier.padding(padding), horizontalAlignment = Alignment.CenterHorizontally
@@ -146,7 +151,6 @@ private fun ActionRow(context: Context, model: HomeViewModel, navController: Nav
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreationDialog(
     dismiss: () -> Unit, model: HomeViewModel = viewModel()
@@ -172,7 +176,7 @@ fun CreationDialog(
         })
 }
 
-@OptIn(ExperimentalMaterial3Api::class, DelicateCoroutinesApi::class)
+@OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun ImportDialog(
     dismiss: () -> Unit, model: HomeViewModel

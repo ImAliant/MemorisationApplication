@@ -4,15 +4,10 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Build
-import androidx.work.PeriodicWorkRequest
-import androidx.work.WorkManager
 import fr.uparis.diamantkennel.memorisationapplication.data.QuestionsDB
-import java.util.Calendar
-import java.util.concurrent.TimeUnit
 
-const val CHANNEL_ID = "MY_CHANNEL_ID"
+const val CHANNEL_ID = "REMINDERS"
 
 class MemoApplication : Application() {
     val database: QuestionsDB by lazy { QuestionsDB.getDataBase(this) }
@@ -20,10 +15,6 @@ class MemoApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         createChannel(this)
-
-        if (this.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
-            schedule()
-        }
     }
 
     private fun createChannel(c: Context) {
@@ -38,26 +29,5 @@ class MemoApplication : Application() {
                     as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
-    }
-
-    private fun schedule() {
-        val wm = WorkManager.getInstance(this)
-        wm.cancelAllWork()
-        wm.enqueue(request(10, 45))
-    }
-
-    private fun request(h: Int, m: Int): PeriodicWorkRequest {
-        val now = Calendar.getInstance()
-        val target = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, h)
-            set(Calendar.MINUTE, m)
-        }
-        if (target.before(now))
-            target.add(Calendar.DAY_OF_YEAR, 1)
-        val delta = target.timeInMillis - now.timeInMillis
-
-        return PeriodicWorkRequest.Builder(RappelWorker::class.java, 1, TimeUnit.DAYS)
-            .setInitialDelay(delta, TimeUnit.MILLISECONDS)
-            .build()
     }
 }
