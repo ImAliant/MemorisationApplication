@@ -35,7 +35,7 @@ fun PlayScreen(
     navController: NavController,
     snackbarHostState: SnackbarHostState,
     idSet: Int,
-    model: PlayViewModel = viewModel()
+    model: PlayViewModel = viewModel(),
 ) {
     // First update the list of questions
     model.updateQuestionList(idSet)
@@ -85,7 +85,7 @@ fun Play(
     question: Question?,
     reponse: String,
     correction: AnswerType?,
-    delay: Int
+    delay: Int,
 ) {
     val context = LocalContext.current
 
@@ -94,7 +94,10 @@ fun Play(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (question == null) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
                 Text(context.getString(R.string.no_question), fontSize = 30.sp)
             }
         } else {
@@ -163,7 +166,7 @@ fun SnackbarAnswer(
     model: PlayViewModel,
     snackbarHostState: SnackbarHostState,
     cpt: Int,
-    correction: AnswerType?
+    correction: AnswerType?,
 ) {
     val context = LocalContext.current
     if (correction != null) {

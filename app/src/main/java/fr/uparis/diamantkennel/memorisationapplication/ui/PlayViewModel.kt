@@ -6,12 +6,12 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import fr.uparis.diamantkennel.memorisationapplication.DELAY
 import fr.uparis.diamantkennel.memorisationapplication.MemoApplication
 import fr.uparis.diamantkennel.memorisationapplication.STATS_TOTAL_BAD
 import fr.uparis.diamantkennel.memorisationapplication.STATS_TOTAL_DONE
 import fr.uparis.diamantkennel.memorisationapplication.STATS_TOTAL_GOOD
 import fr.uparis.diamantkennel.memorisationapplication.STATS_TOTAL_TRIED
-import fr.uparis.diamantkennel.memorisationapplication.DELAY
 import fr.uparis.diamantkennel.memorisationapplication.data.Question
 import fr.uparis.diamantkennel.memorisationapplication.dataStore
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +28,7 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
     private val statsKeyTotalGood = intPreferencesKey(STATS_TOTAL_GOOD)
     private val statsKeyTotalBad = intPreferencesKey(STATS_TOTAL_BAD)
 
-    private val delayKey= intPreferencesKey(DELAY)
+    private val delayKey = intPreferencesKey(DELAY)
     val delay = datastore.data.map { it[delayKey] ?: 5000 }
 
     var currentQuestion = mutableStateOf<Question?>(null)
@@ -47,7 +47,9 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
                 dao.loadQuestions(setId).collect { questionList ->
                     questions.value = questionList.shuffled()
                     if (questions.value.isNotEmpty()) {
-                        datastore.edit { it[statsKeyTotal] = (it[statsKeyTotal] ?: 0) + 1 }
+                        datastore.edit {
+                            it[statsKeyTotal] = (it[statsKeyTotal] ?: 0) + 1
+                        }
                     }
                     updateQuestion()
                 }
@@ -106,7 +108,8 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun checkAnswer() {
-        val probaReponse = calcSimilarite(currentQuestion.value!!.reponse, proposedAnswer.value)
+        val probaReponse =
+            calcSimilarite(currentQuestion.value!!.reponse, proposedAnswer.value)
         if (probaReponse >= .70f) {
             evaluatedAnswer.value = AnswerType.GOOD
         } else {

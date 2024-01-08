@@ -15,9 +15,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
+import fr.uparis.diamantkennel.memorisationapplication.DELAY
 import fr.uparis.diamantkennel.memorisationapplication.HOUR
 import fr.uparis.diamantkennel.memorisationapplication.MINUTE
-import fr.uparis.diamantkennel.memorisationapplication.DELAY
 import fr.uparis.diamantkennel.memorisationapplication.MemoApplication
 import fr.uparis.diamantkennel.memorisationapplication.RappelWorker
 import fr.uparis.diamantkennel.memorisationapplication.STATS_TOTAL_BAD
@@ -51,7 +51,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val statTotalGood = datastore.data.map { it[statsKeyTotalGood] ?: 0 }
     val statTotalBad = datastore.data.map { it[statsKeyTotalBad] ?: 0 }
 
-    var prefConfigTime = datastore.data.map { TimeConfig(it[notifH] ?: 8, it[notifM] ?: 0) }
+    var prefConfigTime =
+        datastore.data.map { TimeConfig(it[notifH] ?: 8, it[notifM] ?: 0) }
 
     var deletionDB = mutableStateOf(false)
     var deletionStat = mutableStateOf(false)
@@ -159,12 +160,15 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun dismissDeletionDB() {
         deletionDB.value = false
     }
+
     fun dismissDeletionStat() {
         deletionStat.value = false
     }
+
     fun dismissNotif() {
         notif.value = false
     }
+
     fun dismissDelayRequest() {
         delayRequest.value = false
     }

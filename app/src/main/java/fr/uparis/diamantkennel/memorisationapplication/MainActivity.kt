@@ -150,4 +150,3 @@ fun <T: Any> ShowDialog(
         dialog()
     }
 }
-

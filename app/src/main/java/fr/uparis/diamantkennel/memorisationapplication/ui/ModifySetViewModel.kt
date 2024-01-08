@@ -67,9 +67,11 @@ class ModifySetViewModel(application: Application) : AndroidViewModel(applicatio
     fun modifAction() {
         action.value = ActionModifySet.MODIFICATION
     }
+
     fun ajoutAction() {
         action.value = ActionModifySet.AJOUT
     }
+
     fun supprAction() {
         action.value = ActionModifySet.SUPPRIMER
     }
